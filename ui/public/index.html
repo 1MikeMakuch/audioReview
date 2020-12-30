@@ -24,7 +24,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Dollahite Tapes</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -40,4 +40,22 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
+<script>
+  function onlyPlayOneIn(container) {
+    console.log('onlyPlayOneIn')
+        container.addEventListener("play", function(event) {
+          audio_elements = container.getElementsByTagName("audio")
+          for(i=0; i < audio_elements.length; i++) {
+            audio_element = audio_elements[i];
+            if (audio_element !== event.target) {
+              console.log('pausing a player')
+              audio_element.pause();
+            }
+          }
+        }, true);
+      }
+      document.addEventListener("DOMContentLoaded", function() {
+        onlyPlayOneIn(document.body);
+      });
+</script>
 </html>

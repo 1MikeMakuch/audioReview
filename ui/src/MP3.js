@@ -1,42 +1,39 @@
 import './MP3.css'
-import {Card, CardDeck, Row, Col} from 'react-bootstrap'
-//import Accordion from 'react-bootstrap/Accordion'
+import {Card, CardDeck} from 'react-bootstrap'
 
-//import Comments from './Comments'
+require('dotenv').config() //({path: '../.env'})
 
-function MP3_ROWS(props) {
-  return (
-    <Row>
-      <Col xs={2}>{props.file}</Col>
-      <Col xs={4}>
-        <audio preload="metadata" controls="controls" id="audio_player">
-          <source src={`http://localhost:7002/${props.file}`} type="audio/mpeg" />
-          Your browser does not support audio
-        </audio>
-      </Col>
-      <Col style={{textAlign: 'left'}}>
-        Lipsim xyzzy plugh
-        <br />
-        qwerty asdf asdf
-      </Col>
-    </Row>
-  )
-}
 function MP3(props) {
+  var comments = [
+    '',
+    '',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+    '',
+    '',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
+    '',
+    '',
+    '',
+    '',
+    '',
+    ''
+  ]
+
+  let r = parseInt(Math.random() * comments.length)
+  let comment = comments[r]
+
+  let mp3url = process.env.REACT_APP_MP3URL
+
   return (
     <CardDeck>
-      <Card>{props.file}</Card>
+      <Card>{props.name}</Card>
       <Card>
         <audio preload="metadata" controls="controls" id="audio_player">
-          <source src={`http://localhost:7002/${props.file}`} type="audio/mpeg" />
+          <source src={`${mp3url}/${props.file}`} type="audio/mpeg" />
           Your browser does not support audio
         </audio>
       </Card>
-      <Card style={{textAlign: 'left'}}>
-        Lipsim xyzzy plugh
-        <br />
-        qwerty asdf asdf
-      </Card>
+      <Card style={{textAlign: 'left'}}>{comment}</Card>
     </CardDeck>
   )
 }

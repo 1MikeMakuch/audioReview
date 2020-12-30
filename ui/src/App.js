@@ -1,15 +1,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-import {Button, Navbar, Card} from 'react-bootstrap'
+import {Button, Nav, Navbar, Card} from 'react-bootstrap'
 //import {Container, Row, Col} from 'react-bootstrap'
-import Accordion from 'react-bootstrap/Accordion'
+//import Accordion from 'react-bootstrap/Accordion'
 import './App.css'
 import MP3 from './MP3'
+import {useState} from 'react'
 
 // prettier-ignore
 const tapes =[
   ["0101-01.mp3", "0101-02.mp3", "0101-03.mp3", "0101-04.mp3", "0101-05.mp3", "0101-06.mp3", "0101-07.mp3", "0101-08.mp3", "0101-09.mp3", "0101-10.mp3", "0101-11.mp3", "0101-12.mp3", "0101-13.mp3", "0101-14.mp3", "0101-15.mp3", "0101-16.mp3", "0102-01.mp3", "0102-02.mp3", "0102-03.mp3", "0102-04.mp3", "0102-05.mp3", "0102-06.mp3", "0102-07.mp3", "0102-08.mp3", "0102-09.mp3", "0102-10.mp3"],
-
-
    ["0201-01.mp3", "0201-02.mp3", "0201-03.mp3", "0201-04.mp3", "0201-05.mp3", "0201-06.mp3", "0201-07.mp3", "0201-08.mp3", "0201-09.mp3", "0201-10.mp3", "0201-11.mp3", "0201-12.mp3", "0201-13.mp3", "0201-14.mp3", "0201-15.mp3", "0202-01.mp3", "0202-02.mp3", "0202-03.mp3", "0202-04.mp3", "0202-05.mp3", "0202-06.mp3", "0202-07.mp3", "0202-08.mp3"],
    ["0301-01.mp3", "0301-02.mp3", "0301-03.mp3", "0301-04.mp3", "0301-05.mp3", "0301-06.mp3", "0301-07.mp3", "0301-08.mp3", "0301-09.mp3", "0301-10.mp3", "0301-11.mp3", "0301-12.mp3"],
    ["0401-01.mp3", "0401-02.mp3", "0401-03.mp3", "0401-04.mp3", "0401-05.mp3", "0401-06.mp3", "0401-07.mp3", "0401-08.mp3", "0401-09.mp3", "0401-10.mp3", "0401-11.mp3", "0401-12.mp3", "0401-13.mp3"],
@@ -22,61 +21,44 @@ const tapes =[
  ]
 
 function App() {
-  //   function Tape(props) {
-  //     return (
-  //       <Container>
-  //         <Row>
-  //           <Col xs={1}>Tape {Number(props.mp3s[0].substr(0, 2))}</Col>
-  //         </Row>
-  //         <Container>
-  //           {props.mp3s.map((mp3, i) => (
-  //             <MP3 file={props.i + '-' + (i + 1)} />
-  //           ))}
-  //         </Container>
-  //       </Container>
-  //     )
-  //   }
+  const [tape, setTape] = useState(1)
 
-  function Tape(props) {
-    function handleClick(e) {
-      console.log('handleClick', e)
-      return (
-        <Card.Body>
-          {props.mp3s.map((mp3, i) => (
-            <MP3 key={i} file={mp3} name={props.i + '-' + (i + 1)} />
-          ))}
-        </Card.Body>
-      )
-    }
-    return (
-      <Card>
-        <Card.Header>
-          <Accordion.Toggle as={Button} eventKey={props.i}>
-            Tape {Number(props.mp3s[0].substr(0, 2))}
-          </Accordion.Toggle>
-        </Card.Header>
+  let tapeSection = ''
 
-        <Accordion.Collapse eventKey={props.i}>
-          <Card.Body>
-            {props.mp3s.map((mp3, i) => (
-              <MP3 key={i} file={mp3} name={props.i + '-' + (i + 1)} />
-            ))}
-          </Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    )
-  }
+  tapeSection = (
+    <Card>
+      <Card.Header>Tape {Number(tapes[tape][0].substr(0, 2))}</Card.Header>
+
+      <Card.Body>
+        {tapes[tape].map((mp3, i) => (
+          <MP3 key={i} file={mp3} name={Number(tape) + 1 + '-' + (i + 1)} />
+        ))}
+      </Card.Body>
+    </Card>
+  )
+
+  console.log('tape', tape)
   return (
     <div className="App">
       <Navbar expand="md" className="customNav" bg="primary" variant="dark" sticky="top">
-        <header className="App-header">Dollahite Tapes</header>
+        <header className="App-header">Dollahite tapes </header>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <Nav.Link onClick={() => setTape(0)}>Tape 1</Nav.Link>
+            <Nav.Link onClick={() => setTape(1)}>Tape 2</Nav.Link>
+            <Nav.Link onClick={() => setTape(2)}>Tape 3</Nav.Link>
+            <Nav.Link onClick={() => setTape(3)}>Tape 4</Nav.Link>
+            <Nav.Link onClick={() => setTape(4)}>Tape 5</Nav.Link>
+            <Nav.Link onClick={() => setTape(5)}>Tape 6</Nav.Link>
+            <Nav.Link onClick={() => setTape(6)}>Tape 7</Nav.Link>
+            <Nav.Link onClick={() => setTape(7)}>Tape 8</Nav.Link>
+            <Nav.Link onClick={() => setTape(8)}>Tape 9</Nav.Link>
+            <Nav.Link onClick={() => setTape(9)}>Tape 10</Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
       </Navbar>
-
-      <Accordion>
-        {tapes.map((tape, i) => (
-          <Tape key={i} mp3s={tape} i={i + 1} />
-        ))}
-      </Accordion>
+      {tapeSection}
     </div>
   )
 }
