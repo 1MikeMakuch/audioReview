@@ -1,27 +1,43 @@
 import './MP3.css'
-import {Container, Row, Col} from 'react-bootstrap'
+import {Card, CardDeck, Row, Col} from 'react-bootstrap'
+//import Accordion from 'react-bootstrap/Accordion'
 
-import Comments from './Comments'
+//import Comments from './Comments'
 
-function MP3(props) {
+function MP3_ROWS(props) {
   return (
-    <Row className="align-items-center" style={{border: '1px', 'border-color': '#eeeeee', 'border-style': 'solid'}}>
-      <Col xs={1} />
-      <Col xs={1} style={{padding: 0}}>
-        {props.file}
-      </Col>
+    <Row>
+      <Col xs={2}>{props.file}</Col>
       <Col xs={4}>
-        <audio controls="controls" id="audio_player">
-          <source src="{props.file}" type="audio/mpeg" />
+        <audio preload="metadata" controls="controls" id="audio_player">
+          <source src={`http://localhost:7002/${props.file}`} type="audio/mpeg" />
           Your browser does not support audio
         </audio>
       </Col>
-      <Col style={{'text-align': 'left'}}>
+      <Col style={{textAlign: 'left'}}>
         Lipsim xyzzy plugh
         <br />
         qwerty asdf asdf
       </Col>
     </Row>
+  )
+}
+function MP3(props) {
+  return (
+    <CardDeck>
+      <Card>{props.file}</Card>
+      <Card>
+        <audio preload="metadata" controls="controls" id="audio_player">
+          <source src={`http://localhost:7002/${props.file}`} type="audio/mpeg" />
+          Your browser does not support audio
+        </audio>
+      </Card>
+      <Card style={{textAlign: 'left'}}>
+        Lipsim xyzzy plugh
+        <br />
+        qwerty asdf asdf
+      </Card>
+    </CardDeck>
   )
 }
 

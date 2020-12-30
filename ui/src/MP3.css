@@ -1,4 +1,13 @@
 .MP3 {
   text-align: center;
   display: flex;
+
+}
+.card {
+    border: none;
+}
+.card-deck {
+border: 1px;
+border-color: #eeeeee;
+border-style: solid;
 }
