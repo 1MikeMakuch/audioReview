@@ -1,7 +1,7 @@
 'use strict'
 
 const debug = require('debug')('dt:db:comments')
-const debugE = require('debug')('dt:error::db:comments')
+//const debugE = require('debug')('dt:error::db:comments')
 
 var mysql
 
@@ -10,19 +10,7 @@ async function get(id) {
     throw new Error('id required')
   }
   let sql = 'select * from comments where mp3 = ? order by dt'
-  let results
-  try {
-    ;[results] = await mysql.execute(sql, [id])
-  } catch (e) {
-    debugE('get', sql, id, e)
-    throw e
-  }
-  debug('get', sql, id, JSON.stringify(results))
-  if (results && results.length) {
-    return results
-  } else {
-    throw new Error(id + ' not found')
-  }
+  return await mysql(sql, [id])
 }
 async function create(userid, mp3id, comments) {
   if (!mp3id) {
@@ -36,40 +24,21 @@ async function create(userid, mp3id, comments) {
   }
   let sql = 'insert into comments (userid,mp3,data) values (?, ?, ?)'
   let values = [userid, mp3id, comments]
-  debug('create', sql, JSON.stringify(values))
-  let results
-  try {
-    results = await mysql.execute(sql, values)
-  } catch (e) {
-    debugE(e)
-    throw e
-  }
-  debug('results', JSON.stringify(results))
 
-  return results
+  return await mysql(sql, values)
 }
 async function del(id) {
   if (!id) {
     throw new Error('id required')
   }
-
   let sql = 'delete from comments where id= ?'
   let values = [id]
-  debug('del', sql, JSON.stringify(values))
-  let results
-  try {
-    results = await mysql.execute(sql, values)
-  } catch (e) {
-    debugE(e)
-    throw e
-  }
-
-  return results
+  return await mysql(sql, values)
 }
 
 async function init(config) {
   debug('init', Object.keys(config))
-  mysql = config.mysql
+  mysql = config.execute
 }
 
 module.exports = {init, get, create, del}

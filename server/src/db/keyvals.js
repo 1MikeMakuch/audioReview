@@ -2,6 +2,7 @@
 
 const debug = require('debug')('dt:db:keyvals')
 const debugE = require('debug')('dt:error::db:keyvals')
+const _ = require('lodash')
 
 var mysql
 
@@ -11,32 +12,24 @@ async function get(id) {
   }
   let sql = 'select * from keyvals where id = ?'
   let values = [id]
-  let result
+  let result = await mysql(sql, values)
+  if (0 === result.length) return undefined
+
+  let out = {}
+
+  out.id = _.get(result, '[0].id')
+  out.dt = _.get(result, '[0].dt')
+  out.val = _.get(result, '[0].data')
+  if (out.val) out.val = out.val.toString()
+
   try {
-    ;[result] = await mysql.execute(sql, values)
+    let tmp = JSON.parse(out.val)
+    out.val = tmp
   } catch (e) {
-    debugE('get', sql, id, e)
-    throw e
+    debugE('get', e)
   }
 
-  if (result && 1 == result.length) {
-    let out = {}
-    out.id = result[0].id
-    if (null !== result[0].data) out.val = result[0].data.toString()
-    out.dt = result[0].dt
-
-    try {
-      let tmp = JSON.parse(out.val)
-      out.val = tmp
-    } catch (e) {
-      debugE('get', e.message)
-    }
-    debug('get', sql, id, JSON.stringify(out))
-    return out
-  } else {
-    debugE('get', id + ' not found', result)
-    throw new Error(id + ' not found')
-  }
+  return out
 }
 async function set(id, data) {
   if (!id) {
@@ -47,57 +40,34 @@ async function set(id, data) {
     throw new Error('val required')
   }
 
-  let json = 0
-  let obj
-
   try {
-    json = JSON.stringify(data)
-    obj = JSON.parse(json)
+    let json = JSON.stringify(data)
+    let obj = JSON.parse(json)
     let isArray = Array.isArray(obj)
     let isObject = (typeof obj === 'object' || typeof obj === 'function') && obj !== null
     json = isArray || isObject ? 1 : 0
     if (json) data = JSON.stringify(data)
   } catch (e) {
     debug('set', data, e)
-    json = 0
   }
 
   let sql = 'insert into keyvals (id,data) values (?, ?) on duplicate key update data = ?'
-
   let values = [id, data, data]
-  debug('set', sql, JSON.stringify(values))
-  let result
-  try {
-    result = await mysql.execute(sql, values)
-  } catch (e) {
-    debugE('set', e)
-    throw e
-  }
-  debug('set', id, JSON.stringify(data), JSON.stringify(result))
-  return result
+
+  return await mysql(sql, values)
 }
 
 async function del(id) {
   if (!id) {
     throw new Error('id required')
   }
-
   let sql = 'delete from keyvals where id= ?'
   let values = [id]
-
-  let results
-  try {
-    results = await mysql.execute(sql, values)
-  } catch (e) {
-    debugE('del', sql, JSON.stringify(values), e.message)
-    throw e
-  }
-  debug('del', sql, JSON.stringify(values), JSON.stringify(results))
-  return results
+  return await mysql(sql, values)
 }
 async function init(config) {
-  debug('init', Object.keys(config))
-  mysql = config.mysql
+  debug('init')
+  mysql = config.execute
 }
 
 module.exports = {init, get, set, del}

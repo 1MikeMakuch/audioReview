@@ -27,11 +27,23 @@ async function mysqlConnect() {
   debug(JSON.stringify([v, z]))
 }
 
+async function execute(sql, values) {
+  let results
+  try {
+    ;[results] = await mysql.execute(sql, values)
+  } catch (e) {
+    debugE(sql, JSON.stringify(values), e.message)
+    throw e
+  }
+  debug(sql, JSON.stringify({values, results: results}))
+  return results
+}
+
 async function init() {
   debug('init')
   await mysqlConnect()
-  comments.init({mysql})
-  keyvals.init({mysql})
+  comments.init({execute})
+  keyvals.init({execute})
 }
 
 module.exports = {init, comments, keyvals}
