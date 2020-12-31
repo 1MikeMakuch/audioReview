@@ -23,8 +23,13 @@ async function get(id) {
   if (out.val) out.val = out.val.toString()
 
   try {
+    // JSON.parse converts '123' to Number(123), interestingly...
     let tmp = JSON.parse(out.val)
     out.val = tmp
+    // Don't support numbers. Cant distinguish between text and nums so just ignore nums for now
+    if ('number' == typeof out.val) {
+      out.val += ''
+    }
   } catch (e) {
     debugE('get', e)
   }

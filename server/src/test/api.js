@@ -95,22 +95,18 @@ describe('api', async function() {
     expect(r.body.val.xyzzy).to.equal(val.xyzzy)
     debug('read that', key, val)
 
-    // hmm can't send a number thru chai
-    //val = 123
-    // and yet the string number comes back as a number
-    //     val = '123'
-    //     r = await request
-    //       .post(`/keyvals/${key}`)
-    //       .set('Content-type', 'text/plain')
-    //       .send(val)
-    //     debug('set to number', key, val)
-    //     expect(r.status).to.equal(201)
-    //
-    //     // read it
-    //     r = await request.get(`/keyvals/${key}`)
-    //     debug('r', r.body)
-    //     expect(r.status).to.equal(200)
-    //     expect(r.body.val).to.equal(val)
+    // Cant send numbers through chai
+    val = 123
+    try {
+      r = await request
+        .post(`/keyvals/${key}`)
+        .set('Content-type', 'text/plain')
+        .send(val)
+      debug('set to number', key, val)
+      expect(r.status).to.equal(201)
+    } catch (e) {
+      expect(e.code).to.equal('ERR_INVALID_ARG_TYPE')
+    }
 
     // read non existent
     r = await request.get(`/keyvals/${key + '123123123'}`)
