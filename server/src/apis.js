@@ -110,8 +110,6 @@ async function getKeyVals(req, res) {
   res.send(result)
 }
 async function postKeyVals(req, res) {
-  debug('post', req.headers['content-type'], req.params, req.body)
-
   let id = req.params.id
   let data = req.body
 
@@ -138,7 +136,7 @@ async function postKeyVals(req, res) {
     debugE(e)
     res.status(400)
   }
-  debug('result', result)
+
   res.status(201).end()
 }
 async function delKeyVals(req, res) {
