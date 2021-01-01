@@ -136,4 +136,74 @@ describe('db', async function() {
     }
     expect(r).to.be.undefined
   })
+
+  it('users', async function() {
+    debug('users')
+    let user = {
+      name: 'Joe User',
+      email: 'joe@testuserexample.xyz'
+    }
+
+    // create
+
+    let r = await db.users.create(user)
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+    let id = r.insertId
+
+    // read
+    r = await db.users.get({id})
+    expect(r.id).to.equal(id)
+    expect(r.email).to.equal(user.email)
+    expect(r.name).to.equal(user.name)
+
+    // update by id
+    user.email = 'xyzzy@plugh.xyz'
+    r = await db.users.update({id, email: user.email})
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+
+    // confirm it was updated
+    r = await db.users.get({id})
+    expect(r.id).to.equal(id)
+    expect(r.email).to.equal(user.email)
+    expect(r.name).to.equal(user.name)
+
+    // update by email
+    user.name = 'Sally User'
+    r = await db.users.update({id, name: user.name})
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+
+    // confirm it was updated read by email
+    r = await db.users.get({email: user.email})
+    expect(r.id).to.equal(id)
+    expect(r.email).to.equal(user.email)
+    expect(r.name).to.equal(user.name)
+
+    // delete
+    r = await db.users.del({id})
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+
+    // confirm it was deleted
+    r = await db.users.get({id})
+    expect(r).to.be.undefined
+
+    // create 1 more
+    user.email = 'plugh@xyzzy.xyz'
+    r = await db.users.create(user)
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+    id = r.insertId
+
+    // delete by email
+    r = await db.users.del({email: user.email})
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+
+    // confirm it was deleted
+    r = await db.users.get({email: user.email})
+    expect(r).to.be.undefined
+  })
 })

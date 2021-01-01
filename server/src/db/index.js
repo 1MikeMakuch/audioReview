@@ -7,7 +7,7 @@ require('dotenv').config()
 
 const comments = require('./comments')
 const keyvals = require('./keyvals')
-//const users = require('./users')
+const users = require('./users')
 
 var mysql
 
@@ -44,6 +44,7 @@ async function init() {
   await mysqlConnect()
   comments.init({execute})
   keyvals.init({execute})
+  users.init({execute})
 }
 
-module.exports = {init, comments, keyvals}
+module.exports = {init, comments, keyvals, users}

@@ -123,4 +123,39 @@ describe('api', async function() {
     expect(r.status).to.equal(404)
     debug('check its deleted')
   })
+
+  it('users', async function() {
+    let user = {
+      name: 'Joe User',
+      email: 'joe@xyzzy.xyz'
+    }
+
+    // create user
+    let r = await request.post('/users').send(user)
+    expect(r.status).to.equal(201)
+    let id = r.body.insertId
+
+    // read it by id
+    r = await request.get(`/users/${id}`)
+    expect(r.status).to.equal(200)
+    expect(r.body.name).to.equal(user.name)
+    expect(r.body.emai).to.equal(user.emai)
+
+    // read it by email
+    r = await request.get(`/users/?email=${user.email}`)
+    expect(r.status).to.equal(200)
+    expect(r.body.name).to.equal(user.name)
+    expect(r.body.emai).to.equal(user.emai)
+
+    // update by id
+    user.name = 'Sally User'
+    r = await request.put(`/users/${id}`).send({name: user.name})
+    expect(r.status).to.equal(201)
+
+    // read/verify the update by id
+    r = await request.get(`/users/${id}`)
+    expect(r.status).to.equal(200)
+    expect(r.body.name).to.equal(user.name)
+    expect(r.body.emai).to.equal(user.emai)
+  })
 })

@@ -27,7 +27,8 @@ create table users (
     id int(11) not null auto_increment,
     email varchar(512) not null,
     name varchar(512) not null,
+--    password varchar(255) not null,
     primary key(id),
-    key email (email),
+    unique key email (email),
     dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
