@@ -157,5 +157,15 @@ describe('api', async function() {
     expect(r.status).to.equal(200)
     expect(r.body.name).to.equal(user.name)
     expect(r.body.emai).to.equal(user.emai)
+
+    // delete
+    r = await request.delete(`/users/${id}`)
+    expect(r.status).to.equal(200)
+    debug('delete user', id)
+
+    // check it's gone
+    r = await request.get(`/users/${id}`)
+    expect(r.status).to.equal(404)
+    debug('check its deleted')
   })
 })
