@@ -1,11 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
-import {Button, Nav, Navbar, Card} from 'react-bootstrap'
-//import {Container, Row, Col} from 'react-bootstrap'
-//import Accordion from 'react-bootstrap/Accordion'
-import './App.css'
-import MP3 from './MP3'
-import {useState} from 'react'
-
 // prettier-ignore
 const tapes =[
   ["0101-01.mp3", "0101-02.mp3", "0101-03.mp3", "0101-04.mp3", "0101-05.mp3", "0101-06.mp3", "0101-07.mp3", "0101-08.mp3", "0101-09.mp3", "0101-10.mp3", "0101-11.mp3", "0101-12.mp3", "0101-13.mp3", "0101-14.mp3", "0101-15.mp3", "0101-16.mp3", "0102-01.mp3", "0102-02.mp3", "0102-03.mp3", "0102-04.mp3", "0102-05.mp3", "0102-06.mp3", "0102-07.mp3", "0102-08.mp3", "0102-09.mp3", "0102-10.mp3"],
@@ -19,48 +11,4 @@ const tapes =[
    ["0901-01.mp3", "0901-02.mp3", "0901-03.mp3", "0901-04.mp3", "0901-05.mp3", "0901-06.mp3", "0901-07.mp3", "0901-08.mp3", "0901-09.mp3", "0901-10.mp3", "0901-11.mp3", "0901-12.mp3", "0901-13.mp3", "0901-14.mp3", "0901-15.mp3", "0901-16.mp3", "0901-17.mp3", "0901-18.mp3", "0901-19.mp3", "0901-20.mp3", "0902-01.mp3", "0902-02.mp3", "0902-03.mp3", "0902-04.mp3", "0902-05.mp3", "0902-06.mp3", "0902-07.mp3", "0902-08.mp3", "0902-09.mp3", "0902-10.mp3", "0902-11.mp3"],
    ["1001-01.mp3", "1001-02.mp3", "1001-03.mp3"]
  ]
-
-function App() {
-  const [tape, setTape] = useState(1)
-
-  let tapeSection = ''
-
-  tapeSection = (
-    <Card>
-      <Card.Header>Tape {Number(tapes[tape][0].substr(0, 2))}</Card.Header>
-
-      <Card.Body>
-        {tapes[tape].map((mp3, i) => (
-          <MP3 key={i} file={mp3} name={Number(tape) + 1 + '-' + (i + 1)} />
-        ))}
-      </Card.Body>
-    </Card>
-  )
-
-  console.log('tape', tape)
-  return (
-    <div className="App">
-      <Navbar expand="md" className="customNav" bg="primary" variant="dark" sticky="top">
-        <header className="App-header">Dollahite tapes </header>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">
-            <Nav.Link onClick={() => setTape(0)}>Tape 1</Nav.Link>
-            <Nav.Link onClick={() => setTape(1)}>Tape 2</Nav.Link>
-            <Nav.Link onClick={() => setTape(2)}>Tape 3</Nav.Link>
-            <Nav.Link onClick={() => setTape(3)}>Tape 4</Nav.Link>
-            <Nav.Link onClick={() => setTape(4)}>Tape 5</Nav.Link>
-            <Nav.Link onClick={() => setTape(5)}>Tape 6</Nav.Link>
-            <Nav.Link onClick={() => setTape(6)}>Tape 7</Nav.Link>
-            <Nav.Link onClick={() => setTape(7)}>Tape 8</Nav.Link>
-            <Nav.Link onClick={() => setTape(8)}>Tape 9</Nav.Link>
-            <Nav.Link onClick={() => setTape(9)}>Tape 10</Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
-      {tapeSection}
-    </div>
-  )
-}
-
-export default App
+export default tapes
