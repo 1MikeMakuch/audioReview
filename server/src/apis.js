@@ -6,7 +6,12 @@ const db = require('./db')
 const debug = require('debug')('dt:apis')
 const debugE = require('debug')('dt:error::apis')
 const _ = require('lodash')
-// const passport = require('passport')
+const jwt = require('jsonwebtoken')
+const expressValidator = require('express-validator')
+const passport = require('passport')
+const JwtStrategy = require('passport-jwt').Strategy
+const ExtractJwt = require('passport-jwt').ExtractJwt
+
 // const LocalStrategy = require('passport-local').Strategy
 // const BearerStrategy = require('passport-http-bearer')
 
@@ -14,10 +19,15 @@ require('dotenv').config()
 
 var mysql
 
-function health(req, res) {
-  res.status(200).send('Healthy\n')
-  res.end()
+const loginSecretKey = 'knotL1+eshko298LHJ'
+const jwtAlgorithm = 'HS256'
+const jwtOptions = {
+  issuer: 'localhost',
+  audience: 'localhost',
+  algorithm: jwtAlgorithm,
+  expiresIn: '50m'
 }
+
 async function getComments(req, res) {
   let id = req.params.id
 
@@ -267,10 +277,138 @@ async function delUsers(req, res) {
     res.sendStatus(400)
   }
 }
+
+const generateLoginJWT = user => {
+  return new Promise((resolve, reject) => {
+    return jwt.sign({sub: user.id}, loginSecretKey, jwtOptions, (err, token) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(token)
+      }
+    })
+  })
+}
+
+async function login(req, res) {
+  const email = _.get(req.body, 'email')
+  const name = _.get(req.body, 'name')
+
+  debug('login', req.body)
+  if (!email || !name) {
+    res.sendStatus(400)
+  }
+
+  let user = await db.users.get({email})
+  if (!user) {
+    let r = await db.users.create({email, name})
+    if (1 !== r.affectedRows || 0 !== r.warningStatus) {
+      return res.sendStatus(400)
+    }
+    user = await db.users.get({email})
+  }
+
+  generateLoginJWT(user).then(loginToken => {
+    sendAuthenticationEmail(user, loginToken)
+    res.redirect('/login?check-email')
+    //res.sendStatus(200)
+  })
+}
+function sendAuthenticationEmail(user, token) {
+  let text = 'Just click on this link and you will be logged in, no password required.\n\n'
+  text += `https://${process.env.LOGIN_URL}?token=${token}\n\n`
+  text += 'Cheers\nMike'
+  let mail = {
+    from: '1mikemakuch.server@gmail.com',
+    replyTo: '1mikemakuch@gmail.com',
+    to: user.email,
+    subject: 'Dollahite Tapes Login Link',
+    text
+  }
+  console.log('\ncurl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/login?token=' + token + '\n')
+  //  utils.sendMail(mail)
+}
+function magicLink(req, res, next) {
+  debug('magicLink', req.query)
+  const {incorrectToken, token} = req.query
+
+  if (token) {
+    next()
+  } else {
+    res.render('login', {
+      incorrectToken: incorrectToken === 'true'
+    })
+  }
+}
+function authenticate(req, res, next) {
+  debug('authenticate 0', req.query)
+  passport.authenticate(
+    'jwt',
+    {
+      successReturnToOrRedirect: '/app',
+      failureRedirect: '/login?incorrectToken=true',
+      session: true
+    },
+    (err, user, info) => {
+      debug('authenticate 1 err', err)
+      debug('authenticate 2 user', JSON.stringify(user))
+      debug('authenticate 3 info', info)
+      debug('req.session', JSON.stringify(req.session))
+
+      req.login(user, {session: true}, e => {
+        debug('req.login', e)
+        if (e) next(e)
+        res.json(req.user)
+        debug('req.user', JSON.stringify(req.user))
+      })
+    }
+  )(req, res, next)
+}
+
 function init(app) {
   debug('init')
-  //   app.use(passport.initialize())
-  //   app.use(passport.session())
+
+  const jwtOptions2 = {
+    secretOrKey: loginSecretKey, //the same one we used for token generation
+    algorithms: jwtAlgorithm, //the same one we used for token generation
+    jwtFromRequest: ExtractJwt.fromUrlQueryParameter('token') //how we want to extract token from the request
+  }
+
+  passport.use(
+    'jwt',
+    new JwtStrategy(jwtOptions2, (token, done) => {
+      const uuid = token.sub
+      debug('JwtStrategy uuid:', uuid, JSON.stringify(token))
+      //      userRepository.fetch(uuid).then(user => {
+      db.users.get({id: uuid}).then(user => {
+        debug('db.users.get:', JSON.stringify(user))
+        if (user) {
+          done(null, user)
+        } else {
+          done(null, false)
+        }
+      })
+    })
+  )
+
+  passport.serializeUser((user, next) => {
+    debug('passport.serializeUser', user.id)
+    next(null, user.id)
+  })
+
+  passport.deserializeUser((id, next) => {
+    debug('passport.deserializeUser', id)
+    db.users.get(id).then(user => {
+      debug('passport.deserializeUser', JSON.stringify(user))
+      if (user) next(null, user)
+      else next(null, false)
+    })
+  })
+
+  function health(req, res) {
+    res.status(200).send('Healthy\n')
+    res.end()
+  }
 
   app.get('/healthz', health)
   app.get('/comments/:id', getComments)
@@ -286,6 +424,56 @@ function init(app) {
   app.post('/users/', postUsers)
   app.put('/users/:id', putUsers)
   app.delete('/users/:id', delUsers)
+
+  app.post(
+    '/login',
+    expressValidator
+      .body('email')
+      .isEmail()
+      .normalizeEmail(),
+    expressValidator
+      .body('name')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    login
+  )
+  app.get(
+    '/login',
+    (req, res, next) => {
+      debug('/login', req.query)
+      const {incorrectToken, token} = req.query
+
+      if (token) {
+        debug('next')
+        next()
+      } else {
+        debug('else render login')
+        res.redirect(301, '/login')
+        //  {
+        //           incorrectToken: incorrectToken === 'true'
+        //        })
+      }
+    },
+    debugNext0,
+    (req, res, next) => {
+      authenticate(req, res, next)
+      //     passport.authenticate('jwt', {
+      //       successReturnToOrRedirect: '/',
+      //       failureRedirect: '/login?incorrectToken=true'
+      //     })
+    },
+    debugNext1
+  )
+}
+function debugNext0(req, res, next) {
+  debug('debugNext0')
+  next()
+}
+function debugNext1(req, res, next) {
+  debug('debugNext1')
+  next()
 }
 
 module.exports = {init}

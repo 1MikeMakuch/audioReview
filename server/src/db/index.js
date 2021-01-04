@@ -25,6 +25,7 @@ async function mysqlConnect() {
   let [v] = await mysql.query('show variables like "version"')
   let [z] = await mysql.query('show variables like "%zone%"')
   debug(JSON.stringify([v, z]))
+  return {mysql, options: config}
 }
 
 async function execute(sql, values) {
@@ -41,10 +42,11 @@ async function execute(sql, values) {
 
 async function init() {
   debug('init')
-  await mysqlConnect()
+  let c = await mysqlConnect()
   comments.init({execute})
   keyvals.init({execute})
   users.init({execute})
+  return c
 }
 
 module.exports = {init, comments, keyvals, users}

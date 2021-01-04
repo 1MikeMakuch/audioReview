@@ -6,7 +6,7 @@ const debugE = require('debug')('dt:error:utils')
 // https://cloud.google.com/compute/docs/tutorials/sending-mail/
 // https://support.google.com/a/answer/2956491 (fyi, leadporte.com domain is being managed by NameCheap)
 let mailConfig
-function mailInit() {
+exports.mailInit = function() {
   mailConfig = {
     port: 587,
     host: process.env.MAIL_HOST,
@@ -23,7 +23,7 @@ function mailInit() {
     }
   }
 
-  debug('mail config', JSON.stringify(mailConfig))
+  debug('mail config', JSON.stringify(exports.hidePW(mailConfig)))
   exports.mailTransporter = nodeMailer.createTransport(mailConfig)
 }
 
@@ -257,6 +257,8 @@ exports.hidePW = function(objIn) {
       obj.password = '*****'
     } else if ('password_confirmation' === key) {
       obj.password_confirmation = '*****'
+    } else if ('pass' === key) {
+      obj.pass = '*****'
     }
   })
   return obj

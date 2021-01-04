@@ -6,6 +6,7 @@ const debugE = require('debug')('dt:error::db:users')
 var mysql
 
 async function get(query) {
+  debug('get', query)
   if (!query.id && !query.email) {
     throw new Error('id or email required')
   }
@@ -35,7 +36,8 @@ async function create(user) {
   let values = [user.email, user.name]
   let sql = 'insert into users (email,name) values (?, ?)'
   let r = await mysql(sql, values)
-  return {...user, id: r.insertId}
+  user = {id: r.insertId, email: user.email, name: user.name}
+  return user
 }
 async function update(user) {
   if (!user || !user.id) {
