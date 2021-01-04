@@ -27,19 +27,6 @@ app.use(require('cookie-parser')())
 app.use(require('body-parser').text({type: ['text/plain', 'text/html']})) //{limit: '1mb', parameterLimit: 10}))
 app.use(require('body-parser').json({limit: '1mb', parameterLimit: 10}))
 
-// app.use(
-//   require('express-validator')({
-//     customValidators: {
-//       isArray: value => {
-//         return Array.isArray(value)
-//       },
-//       inDb: value => {
-//         // TODO
-//       }
-//     }
-//   })
-// )
-
 async function doit() {
   let {mysql, options} = await db.init()
   const MySQLStore = require('express-mysql-session')(session)
@@ -61,11 +48,12 @@ async function doit() {
     cookie.sameSite = sameSite
   }
   cookie.httpOnly = true
-  cookie.originalMaxAge = 1000 * 86400 * 30
+  cookie.originalMaxAge = 1000 * 86400 * 90 // 3 months
   debug("before process.env.ENVIRONMENT === 'development'")
   if (process.env.ENVIRONMENT === 'development') {
     let sessionOptions = {
       secret: process.env.SESSION_SECRET,
+      // needed to destroy session upon logout, https://medium.com/@caroline.e.okun/read-this-if-youre-using-passport-for-authentication-188d00968f1b
       resave: false,
       saveUninitialized: true,
       store: 'mysql options...',

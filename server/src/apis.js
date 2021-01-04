@@ -7,13 +7,11 @@ const debug = require('debug')('dt:apis')
 const debugE = require('debug')('dt:error::apis')
 const _ = require('lodash')
 const jwt = require('jsonwebtoken')
-const expressValidator = require('express-validator')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
-
-// const LocalStrategy = require('passport-local').Strategy
-// const BearerStrategy = require('passport-http-bearer')
+const expressValidator = require('express-validator')
+const {promisify} = require('util')
 
 require('dotenv').config()
 
@@ -290,30 +288,57 @@ const generateLoginJWT = user => {
   })
 }
 
-async function login(req, res) {
+async function requestLoginLink(req, res, next) {
+  //
+  debug('requestLoginLink', JSON.stringify(req.body.email))
+
+  await new Promise(resolve => {
+    expressValidator
+      .body('email', 'valid email required')
+      .not()
+      .isEmpty()
+      .isEmail()
+      .normalizeEmail()(req, res, () => resolve())
+  })
+  await new Promise(resolve => {
+    expressValidator
+      .body('name', 'name required')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()(req, res, () => resolve())
+  })
+
+  const errors = expressValidator.validationResult(req)
+
+  if (!errors.isEmpty()) {
+    debugE('requestLoginLink', JSON.stringify(errors))
+    return res.status(400).json({errors: errors.array()})
+  }
+
   const email = _.get(req.body, 'email')
   const name = _.get(req.body, 'name')
 
-  debug('login', req.body)
-  if (!email || !name) {
-    res.sendStatus(400)
-  }
-
   let user = await db.users.get({email})
   if (!user) {
-    let r = await db.users.create({email, name})
-    if (1 !== r.affectedRows || 0 !== r.warningStatus) {
-      return res.sendStatus(400)
-    }
-    user = await db.users.get({email})
+    user = await db.users.create({email, name})
+    debug('requestLoginLink', JSON.stringify(user))
   }
 
   generateLoginJWT(user).then(loginToken => {
     sendAuthenticationEmail(user, loginToken)
     res.redirect('/login?check-email')
-    //res.sendStatus(200)
   })
 }
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    debug('isLoggedIn/isAuthenticated()')
+    return next()
+  }
+  debug('isLoggedIn NOT isAuthenticated()')
+  res.redirect('/login')
+}
+
 function sendAuthenticationEmail(user, token) {
   let text = 'Just click on this link and you will be logged in, no password required.\n\n'
   text += `https://${process.env.LOGIN_URL}?token=${token}\n\n`
@@ -342,7 +367,7 @@ function magicLink(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-  debug('authenticate 0', req.query)
+  debug('authenticate 0', JSON.stringify(req.query))
   passport.authenticate(
     'jwt',
     {
@@ -355,11 +380,14 @@ function authenticate(req, res, next) {
       debug('authenticate 2 user', JSON.stringify(user))
       debug('authenticate 3 info', info)
       debug('req.session', JSON.stringify(req.session))
-
+      if (!user) {
+        debug('no user in token')
+        return res.redirect('/login')
+      }
       req.login(user, {session: true}, e => {
-        debug('req.login', e)
         if (e) next(e)
         res.json(req.user)
+        //next()
         debug('req.user', JSON.stringify(req.user))
       })
     }
@@ -394,12 +422,16 @@ function init(app) {
 
   passport.serializeUser((user, next) => {
     debug('passport.serializeUser', user.id)
-    next(null, user.id)
+    if (user && user.id) {
+      next(null, user.id)
+    } else {
+      next(null, false)
+    }
   })
 
   passport.deserializeUser((id, next) => {
     debug('passport.deserializeUser', id)
-    db.users.get(id).then(user => {
+    db.users.get({id}).then(user => {
       debug('passport.deserializeUser', JSON.stringify(user))
       if (user) next(null, user)
       else next(null, false)
@@ -426,47 +458,21 @@ function init(app) {
   app.put('/users/:id', putUsers)
   app.delete('/users/:id', delUsers)
 
-  app.post(
-    '/login',
-    expressValidator
-      .body('email')
-      .isEmail()
-      .normalizeEmail(),
-    expressValidator
-      .body('name')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    login
-  )
-  app.get(
-    '/login',
-    (req, res, next) => {
-      debug('/login', req.query)
-      const {incorrectToken, token} = req.query
+  app.post('/requestLoginLink', requestLoginLink)
+  app.get('/login', login)
 
-      if (token) {
-        debug('next')
-        next()
-      } else {
-        debug('else render login')
-        res.redirect(301, '/login')
-        //  {
-        //           incorrectToken: incorrectToken === 'true'
-        //        })
-      }
-    },
-    debugNext0,
-    (req, res, next) => {
-      authenticate(req, res, next)
-      //     passport.authenticate('jwt', {
-      //       successReturnToOrRedirect: '/',
-      //       failureRedirect: '/login?incorrectToken=true'
-      //     })
-    },
-    debugNext1
-  )
+  app.get('/xyzzy', isLoggedIn, debugNext1)
+}
+function login(req, res, next) {
+  debug('login', JSON.stringify(req.query))
+  const {incorrectToken, token} = req.query
+
+  if (token) {
+    return authenticate(req, res, next)
+  } else {
+    debug('login no token, redirect to /login')
+    res.redirect(301, '/login')
+  }
 }
 function debugNext0(req, res, next) {
   debug('debugNext0')
@@ -474,7 +480,7 @@ function debugNext0(req, res, next) {
 }
 function debugNext1(req, res, next) {
   debug('debugNext1')
-  next()
+  res.sendStatus(200)
 }
 
 module.exports = {init}
