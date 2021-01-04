@@ -340,6 +340,7 @@ function magicLink(req, res, next) {
     })
   }
 }
+
 function authenticate(req, res, next) {
   debug('authenticate 0', req.query)
   passport.authenticate(
