@@ -379,7 +379,8 @@ function authenticate(req, res, next) {
     {
       successReturnToOrRedirect: '/app',
       failureRedirect: '/login?incorrectToken=true',
-      session: true
+      session: true,
+      passReqToCallback: true
     },
     (err, user, info) => {
       debug('authenticate 1 err', err)
@@ -392,8 +393,8 @@ function authenticate(req, res, next) {
       }
       req.login(user, {session: true}, e => {
         if (e) next(e)
+        req.session.cookie.expires = 1000 * 86400 * 90
         res.json(req.user)
-        //next()
         debug('req.user', JSON.stringify(req.user))
       })
     }
