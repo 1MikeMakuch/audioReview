@@ -50,7 +50,7 @@ describe('db', async function() {
       expect(false).to.equal(true)
     } catch (e) {
       debugE(e.message)
-      expect(e.message).to.equal('mp3id required')
+      expect(e.message).to.equal('mp3 required')
     }
     expect(r).to.be.null
 
@@ -75,14 +75,11 @@ describe('db', async function() {
   it('keyvals', async function() {
     const id0 = 'test00000000000'
     let data = 'xyzzy'
-    let r
-    try {
-      r = await db.keyvals.set(id0, data)
-    } catch (e) {
-      //
-    }
-    expect(r.affectedRows).to.equal(1)
-    expect(r.warningStatus).to.equal(0)
+
+    let r = await db.keyvals.set(id0, data)
+
+    expect(r.id).to.equal(id0)
+    expect(r.data).to.equal(data)
 
     r = await db.keyvals.get(id0)
     expect(r.id).to.equal(id0)
@@ -146,10 +143,9 @@ describe('db', async function() {
 
     // create
 
-    let r = await db.users.create(user)
-    expect(r.affectedRows).to.equal(1)
-    expect(r.warningStatus).to.equal(0)
-    let id = r.insertId
+    user = await db.users.create(user)
+    debug('user', user)
+    let id = user.id
 
     // read
     r = await db.users.get({id})
@@ -192,10 +188,9 @@ describe('db', async function() {
 
     // create 1 more
     user.email = 'plugh@xyzzy.xyz'
-    r = await db.users.create(user)
-    expect(r.affectedRows).to.equal(1)
-    expect(r.warningStatus).to.equal(0)
-    id = r.insertId
+    user = await db.users.create(user)
+
+    id = user.id
 
     // delete by email
     r = await db.users.del({email: user.email})

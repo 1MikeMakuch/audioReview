@@ -59,7 +59,8 @@ async function set(id, data) {
   let sql = 'insert into keyvals (id,data) values (?, ?) on duplicate key update data = ?'
   let values = [id, data, data]
 
-  return await mysql(sql, values)
+  let r = await mysql(sql, values)
+  return {id, data}
 }
 
 async function del(id) {

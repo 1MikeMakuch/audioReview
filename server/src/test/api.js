@@ -133,7 +133,13 @@ describe('api', async function() {
     // create user
     let r = await request.post('/users').send(user)
     expect(r.status).to.equal(201)
-    let id = r.body.insertId
+    expect(r.body.name).to.equal(user.name)
+    expect(r.body.emai).to.equal(user.emai)
+    let id = r.body.id
+
+    // can't create duplicate
+    r = await request.post('/users').send(user)
+    expect(r.status).to.equal(400)
 
     // read it by id
     r = await request.get(`/users/${id}`)

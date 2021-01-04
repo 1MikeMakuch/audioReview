@@ -34,7 +34,8 @@ async function create(user) {
   }
   let values = [user.email, user.name]
   let sql = 'insert into users (email,name) values (?, ?)'
-  return await mysql(sql, values)
+  let r = await mysql(sql, values)
+  return {...user, id: r.insertId}
 }
 async function update(user) {
   if (!user || !user.id) {

@@ -22,7 +22,7 @@ async function getComments(req, res) {
   let id = req.params.id
 
   if (!id) {
-    return res.status(404)
+    return res.sendStatus(404)
   }
 
   let results
@@ -31,7 +31,7 @@ async function getComments(req, res) {
     results = await db.comments.get(id)
   } catch (e) {
     debugE(e)
-    res.status(404).end()
+    return res.sendStatus(404)
   }
   res.json(results)
 }
@@ -67,16 +67,16 @@ async function postComments(req, res) {
     result = await db.comments.create(userid, id, comments)
   } catch (e) {
     debugE(e)
-    res.status(400)
+    return res.sendStatus(400)
   }
 
-  res.status(201).end()
+  res.sendStatus(201)
 }
 async function delComments(req, res) {
   let id = req.params.id
 
   if (!id) {
-    return res.status(404)
+    return res.sendStatus(404)
   }
 
   let results
@@ -85,19 +85,19 @@ async function delComments(req, res) {
     results = await db.comments.del(id)
   } catch (e) {
     debugE(e)
-    res.status(400).end()
+    return res.sendStatus(400)
   }
   if (results.affectedRows) {
-    res.status(200).end()
+    res.sendStatus(200)
   } else {
-    res.status(400).end()
+    res.sendStatus(400)
   }
 }
 async function getKeyVals(req, res) {
   let id = req.params.id
 
   if (!id) {
-    return res.status(404)
+    return res.sendStatus(404)
   }
 
   let result
@@ -106,9 +106,9 @@ async function getKeyVals(req, res) {
     result = await db.keyvals.get(id)
   } catch (e) {
     debugE(e)
-    res.status(404).send(e)
+    return res.status(404).send(e)
   }
-  if (undefined === result) res.status(404)
+  if (undefined === result) res.sendStatus(404)
 
   res.send(result)
 }
@@ -137,16 +137,16 @@ async function postKeyVals(req, res) {
     result = await db.keyvals.set(id, data)
   } catch (e) {
     debugE(e)
-    res.status(400)
+    return res.sendStatus(400)
   }
 
-  res.status(201).end()
+  res.sendStatus(201)
 }
 async function delKeyVals(req, res) {
   let id = req.params.id
 
   if (!id) {
-    return res.status(404)
+    return res.sendStatus(404)
   }
 
   let results
@@ -155,12 +155,12 @@ async function delKeyVals(req, res) {
     results = await db.keyvals.del(id)
   } catch (e) {
     debugE(e)
-    res.status(400).end()
+    return res.sendStatus(400)
   }
   if (results.affectedRows) {
-    res.status(200).end()
+    res.sendStatus(200)
   } else {
-    res.status(400).end()
+    res.sendStatus(400)
   }
 }
 
@@ -180,9 +180,9 @@ async function getUsers(req, res) {
     result = await db.users.get(query)
   } catch (e) {
     debugE(e)
-    res.status(404).send(e)
+    return res.sendStatus(404).send(e)
   }
-  if (undefined === result) res.status(404)
+  if (undefined === result) res.sendStatus(404)
 
   res.send(result)
 }
@@ -212,7 +212,7 @@ async function postUsers(req, res) {
     result = await db.users.create(user)
   } catch (e) {
     debugE(e)
-    res.status(400)
+    return res.sendStatus(400)
   }
 
   res
@@ -241,10 +241,10 @@ async function putUsers(req, res) {
     result = await db.users.update(user)
   } catch (e) {
     debugE(e)
-    res.status(400)
+    return res.sendStatus(400)
   }
 
-  res.status(201).end()
+  res.sendStatus(201)
 }
 async function delUsers(req, res) {
   let id = _.get(req, 'params.id')
@@ -259,12 +259,12 @@ async function delUsers(req, res) {
     results = await db.users.del({id})
   } catch (e) {
     debugE(e)
-    res.status(400).end()
+    return res.sendStatus(400)
   }
   if (results.affectedRows) {
-    res.status(200).end()
+    res.sendStatus(200)
   } else {
-    res.status(400).end()
+    res.sendStatus(400)
   }
 }
 function init(app) {

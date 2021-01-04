@@ -12,9 +12,9 @@ async function get(id) {
   let sql = 'select * from comments where mp3 = ? order by dt'
   return await mysql(sql, [id])
 }
-async function create(userid, mp3id, comments) {
-  if (!mp3id) {
-    throw new Error('mp3id required')
+async function create(userid, mp3, comments) {
+  if (!mp3) {
+    throw new Error('mp3 required')
   }
   if (!userid) {
     throw new Error('userid required')
@@ -23,7 +23,7 @@ async function create(userid, mp3id, comments) {
     throw new Error('comments required')
   }
   let sql = 'insert into comments (userid,mp3,data) values (?, ?, ?)'
-  let values = [userid, mp3id, comments]
+  let values = [userid, mp3, comments]
 
   return await mysql(sql, values)
 }
