@@ -174,4 +174,38 @@ describe('api', async function() {
     expect(r.status).to.equal(404)
     debug('check its deleted')
   })
+  it('requestLoginLink', async function() {
+    let user = {
+      name: 'Joe User',
+      email: 'joe@example.com'
+    }
+
+    // request login link
+    let r = await request
+      .post('/requestLoginLink')
+      .send(user)
+      .redirects(0)
+    debug('headers', JSON.stringify(r.headers, null, 2))
+    expect(r.status).to.equal(302)
+
+    // discreetly the token is included as a custom header in ENV=development so we can grab it and avoid dealing with email
+    let token = r.headers['x-dollahite-tapes-app']
+    debug('token', token)
+    expect(String(token).length).to.be.gt(0)
+
+    // now login with the token
+    r = await request.get('/login?token=' + token)
+    expect(r.status).to.equal(200)
+    debug('auth cookie', r.headers['set-cookie'][0])
+    const auth = r.headers['set-cookie'][0].replace(/;.*/, '')
+
+    // now try using cookie on an access controlled resource;
+
+    debug('now try /xyzzy', auth)
+    r = await request
+      .get('/xyzzy')
+      .set('cookie', auth)
+      .redirects(0)
+    expect(r.status).to.equal(200)
+  })
 })

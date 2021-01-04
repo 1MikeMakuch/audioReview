@@ -327,13 +327,19 @@ async function requestLoginLink(req, res, next) {
 
   generateLoginJWT(user).then(loginToken => {
     sendAuthenticationEmail(user, loginToken)
-    res.redirect('/login?check-email')
+    let url = '/login?check-email'
+    let header
+    if ('development' === process.env.ENVIRONMENT) {
+      header = {'x-dollahite-tapes-app': loginToken}
+    }
+    if (header) res.set(header)
+    res.redirect(url)
   })
 }
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated()) {
     debug('isLoggedIn/isAuthenticated()')
-    return next()
+    return res.sendStatus(200)
   }
   debug('isLoggedIn NOT isAuthenticated()')
   res.redirect('/login')
@@ -461,7 +467,7 @@ function init(app) {
   app.post('/requestLoginLink', requestLoginLink)
   app.get('/login', login)
 
-  app.get('/xyzzy', isLoggedIn, debugNext1)
+  app.get('/xyzzy', isLoggedIn)
 }
 function login(req, res, next) {
   debug('login', JSON.stringify(req.query))
