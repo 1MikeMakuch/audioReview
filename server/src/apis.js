@@ -48,6 +48,8 @@ async function postComments(req, res) {
   let id = req.params.id
   let comments = req.body.comments
 
+  debug('postComments', userid, id, comments)
+
   if (!id) {
     debugE('id required')
     return res
@@ -69,7 +71,7 @@ async function postComments(req, res) {
       .send('comments required')
       .end()
   }
-
+  debug('xxxx')
   let result
   try {
     result = await db.comments.create(userid, id, comments)
@@ -339,7 +341,7 @@ async function requestLoginLink(req, res, next) {
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated()) {
     debug('isLoggedIn/isAuthenticated()')
-    return res.sendStatus(200)
+    return next()
   }
   debug('isLoggedIn NOT isAuthenticated()')
   res.redirect('/login')
@@ -379,8 +381,8 @@ function authenticate(req, res, next) {
     {
       successReturnToOrRedirect: '/app',
       failureRedirect: '/login?incorrectToken=true',
-      session: true,
-      passReqToCallback: true
+      session: true
+      //      passReqToCallback: true // doesn't seem to be needed
     },
     (err, user, info) => {
       debug('authenticate 1 err', err)
@@ -452,18 +454,18 @@ function init(app) {
 
   app.get('/healthz', health)
   app.get('/comments/:id', getComments)
-  app.post('/comments/:id/:userid', postComments)
-  app.delete('/comments/:id', delComments)
+  app.post('/comments/:id/:userid', isLoggedIn, postComments)
+  app.delete('/comments/:id', isLoggedIn, delComments)
 
   app.get('/keyvals/:id', getKeyVals)
-  app.post('/keyvals/:id', postKeyVals)
-  app.put('/keyvals/:id', postKeyVals)
-  app.delete('/keyvals/:id', delKeyVals)
+  app.post('/keyvals/:id', isLoggedIn, postKeyVals)
+  app.put('/keyvals/:id', isLoggedIn, postKeyVals)
+  app.delete('/keyvals/:id', isLoggedIn, delKeyVals)
 
-  app.get('/users/:id?', getUsers)
-  app.post('/users/', postUsers)
-  app.put('/users/:id', putUsers)
-  app.delete('/users/:id', delUsers)
+  app.get('/users/:id?', isLoggedIn, getUsers)
+  app.post('/users/', isLoggedIn, postUsers)
+  app.put('/users/:id', isLoggedIn, putUsers)
+  app.delete('/users/:id', isLoggedIn, delUsers)
 
   app.post('/requestLoginLink', requestLoginLink)
   app.get('/login', login)
