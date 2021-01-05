@@ -11,8 +11,6 @@ function TopNavbar(props) {
   const setLoggedIn = props.setLoggedIn
   const user = props.user
 
-  console.log('TopNavBar', loggedIn)
-
   let nickname
   if (user && user.name) {
     nickname = user.name.replace(/ .*/, '')

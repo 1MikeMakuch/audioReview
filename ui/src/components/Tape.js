@@ -12,7 +12,7 @@ import tapes from '../constants'
 function Tape(props) {
   const loggedIn = props.loggedIn
   let tape = props.tape - 1
-  console.log('Tape', {tape, loggedIn})
+
   let tapeSection = ''
   if (null !== tape && 0 <= tape && tape <= tapes.length) {
     tapeSection = (

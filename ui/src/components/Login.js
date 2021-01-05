@@ -16,11 +16,8 @@ function Login(props) {
   const setLoggedIn = props.setLoggedIn
   const loggedIn = props.loggedIn
 
-  console.log('pageState 0', pageState)
-
   const qs = queryString.parse(window.location.search)
   if (qs && qs.token) {
-    console.log('qs token', qs.token)
     token = qs.token
 
     if (!pageState || (!pageState[0] && !pageState[1])) setPageState(['token', token])
@@ -28,9 +25,8 @@ function Login(props) {
 
   async function loginToken(token) {
     if (loggedIn) {
-      console.log('loggedIn', token)
+      //console.log('loggedIn', token)
     } else {
-      console.log('logging you in')
       //loggedIn = true
       let request, response
       let url = process.env.REACT_APP_SERVER_URL + '/api/login?token=' + token
@@ -39,11 +35,9 @@ function Login(props) {
         credentials: 'include'
       }
 
-      console.log('login request', request)
-
       response = await fetch(url, request)
       response = await response.json()
-      console.log('login response', response)
+
       setPageState(['loginResponse', response.data])
       setLoggedIn(true)
       //loggedIn = true
@@ -56,8 +50,6 @@ function Login(props) {
   async function handleLogout(e) {
     e.preventDefault()
 
-    console.log('handleLogout', {email, name})
-
     let request, response, url
 
     url = process.env.REACT_APP_SERVER_URL + '/api/logout'
@@ -66,17 +58,13 @@ function Login(props) {
       credentials: 'include'
     }
 
-    console.log('logout request', request)
-
     let raw = await fetch(url, request)
 
-    console.log('logout response', raw.status)
     setLoggedIn(false)
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
-    console.log('handleSubmit', {email, name, firstSubmit})
 
     let request, response, url
     if (firstSubmit) {
@@ -91,17 +79,14 @@ function Login(props) {
       }
     }
     firstSubmit = false
-    console.log('requestLoginLink request', request)
 
     let raw = await fetch(url, request)
     response = await raw.json()
-    console.log('requestLoginLink response', response)
-    console.log('headers', response.dev)
+
     let token = response?.dev['x-dollahite-tapes-app']
     setPageState(['checkEmail', token])
   }
 
-  console.log('pageState 1', pageState)
   if (pageState && token && pageState[0] === 'token') {
     if (loggedIn) {
       return <div>You are now logged in</div>
@@ -110,7 +95,6 @@ function Login(props) {
       return <div>Now logging you in</div>
     }
   } else if (pageState && pageState[0] === 'loginResponse') {
-    console.log('showLR')
     return showLoginResponse()
   } else if (pageState && pageState[0] === 'checkEmail') {
     return checkYourEmail()
@@ -120,15 +104,11 @@ function Login(props) {
 
   function showLoginResponse() {
     return <Redirect to="/tape1" />
-    //       <div>
-    //         <div>Login token </div>
-    //       </div>
-    //    )
   }
 
   function checkYourEmail() {
     let checkEmail = pageState[1]
-    console.log({checkEmail})
+
     let url
     if (checkEmail) {
       url = process.env.REACT_APP_UI_URL + '/login?token=' + checkEmail
@@ -149,7 +129,6 @@ function Login(props) {
       disabled = false
 
     let submitHandler
-    console.log('Login main loggedIn', loggedIn)
 
     if (loggedIn) {
       description = "You're logged in"

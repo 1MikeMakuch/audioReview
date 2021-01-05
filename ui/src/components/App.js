@@ -22,13 +22,12 @@ function App() {
         credentials: 'include'
       }
     let url = process.env.REACT_APP_SERVER_URL + '/api/isLoggedIn'
-    console.log('isLoggedIn request', request)
+
     try {
       response = await fetch(url, request)
       response = await response.json()
     } catch (e) {}
-    console.log(response.status)
-    console.log('isLoggedIn response', response)
+
     if (response?.id && response.email) {
       if (!loggedIn) setLoggedIn(true)
       if (!user) setUser(response)
