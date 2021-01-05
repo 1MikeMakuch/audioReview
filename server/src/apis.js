@@ -329,22 +329,16 @@ async function requestLoginLink(req, res, next) {
 
   generateLoginJWT(user).then(loginToken => {
     sendAuthenticationEmail(user, loginToken)
-    let url = '/login?check-email'
-    let header
+    let url = process.env.UI_URL + '/login?checkEmail=1'
+    let body
     if ('development' === process.env.ENVIRONMENT) {
-      header = {'x-dollahite-tapes-app': loginToken}
+      body = {dev: {'x-dollahite-tapes-app': loginToken}}
     }
-    if (header) res.set(header)
-    res.redirect(url)
+    debug('sending 200 ok', JSON.stringify(body))
+    res.status(200)
+    if (body) res.send(body)
+    res.end()
   })
-}
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    debug('isLoggedIn/isAuthenticated()')
-    return next()
-  }
-  debug('isLoggedIn NOT isAuthenticated()')
-  res.redirect('/login')
 }
 
 function sendAuthenticationEmail(user, token) {
@@ -358,7 +352,9 @@ function sendAuthenticationEmail(user, token) {
     subject: 'Dollahite Tapes Login Link',
     text
   }
-  console.log('\ncurl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/login?token=' + token + '\n')
+  console.log('\nserver\ncurl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/api/login?token=' + token + '\n')
+
+  console.log('\nui\ncurl -v  -H@/Users/mkm/curl/appjson  http://localhost:3000/login?token=' + token + '\n')
   //  utils.sendMail(mail)
 }
 function magicLink(req, res, next) {
@@ -379,8 +375,8 @@ function authenticate(req, res, next) {
   passport.authenticate(
     'jwt',
     {
-      successReturnToOrRedirect: '/app',
-      failureRedirect: '/login?incorrectToken=true',
+      //       successReturnToOrRedirect: '/app',
+      //       failureRedirect: process.env.UI_URL + '/login?incorrectToken=true',
       session: true
       //      passReqToCallback: true // doesn't seem to be needed
     },
@@ -391,7 +387,8 @@ function authenticate(req, res, next) {
       debug('req.session', JSON.stringify(req.session))
       if (!user) {
         debug('no user in token')
-        return res.redirect('/login')
+        return res.sendStatus(401)
+        //return res.redirect(process.env.UI_URL + '/login')
       }
       req.login(user, {session: true}, e => {
         if (e) next(e)
@@ -447,49 +444,71 @@ function init(app) {
     })
   })
 
+  function login(req, res, next) {
+    debug('login', JSON.stringify(req.query))
+    const {incorrectToken, token} = req.query
+
+    if (token) {
+      return authenticate(req, res, next)
+    } else {
+      debug('login no token 401')
+      //res.redirect(301, process.env.UI_URL + '/login')
+      res.sendStatus(401)
+    }
+  }
+  function debugNext0(req, res, next) {
+    debug('debugNext0')
+    next()
+  }
+  function debugNext1(req, res, next) {
+    debug('debugNext1')
+    res.sendStatus(200)
+  }
+
   function health(req, res) {
     res.status(200).send('Healthy\n')
     res.end()
   }
 
-  app.get('/healthz', health)
-  app.get('/comments/:id', getComments)
-  app.post('/comments/:id/:userid', isLoggedIn, postComments)
-  app.delete('/comments/:id', isLoggedIn, delComments)
-
-  app.get('/keyvals/:id', getKeyVals)
-  app.post('/keyvals/:id', isLoggedIn, postKeyVals)
-  app.put('/keyvals/:id', isLoggedIn, postKeyVals)
-  app.delete('/keyvals/:id', isLoggedIn, delKeyVals)
-
-  app.get('/users/:id?', isLoggedIn, getUsers)
-  app.post('/users/', isLoggedIn, postUsers)
-  app.put('/users/:id', isLoggedIn, putUsers)
-  app.delete('/users/:id', isLoggedIn, delUsers)
-
-  app.post('/requestLoginLink', requestLoginLink)
-  app.get('/login', login)
-
-  app.get('/xyzzy', isLoggedIn)
-}
-function login(req, res, next) {
-  debug('login', JSON.stringify(req.query))
-  const {incorrectToken, token} = req.query
-
-  if (token) {
-    return authenticate(req, res, next)
-  } else {
-    debug('login no token, redirect to /login')
-    res.redirect(301, '/login')
+  function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      debug('isLoggedIn true!', JSON.stringify(req.user))
+      return next()
+    }
+    let url = process.env.UI_URL + '/login'
+    debug('isLoggedIn false, redirecting to ' + url)
+    res.sendStatus(401)
   }
-}
-function debugNext0(req, res, next) {
-  debug('debugNext0')
-  next()
-}
-function debugNext1(req, res, next) {
-  debug('debugNext1')
-  res.sendStatus(200)
+
+  app.get('/api/healthz', health)
+  app.get('/api/comments/:id', getComments)
+  app.post('/api/comments/:id/:userid', isLoggedIn, postComments)
+  app.delete('/api/comments/:id', isLoggedIn, delComments)
+
+  app.get('/api/keyvals/:id', getKeyVals)
+  app.post('/api/keyvals/:id', isLoggedIn, postKeyVals)
+  app.put('/api/keyvals/:id', isLoggedIn, postKeyVals)
+  app.delete('/api/keyvals/:id', isLoggedIn, delKeyVals)
+
+  app.get('/api/users/:id?', isLoggedIn, getUsers)
+  app.post('/api/users/', isLoggedIn, postUsers)
+  app.put('/api/users/:id', isLoggedIn, putUsers)
+  app.delete('/api/users/:id', isLoggedIn, delUsers)
+
+  app.post('/api/requestLoginLink', requestLoginLink)
+  app.get('/api/login', login)
+  app.post('/api/logout', isLoggedIn, logout)
+
+  function logout(req, res) {
+    debug('logout', req?.user?.id)
+    req.logOut()
+    res.sendStatus(200)
+  }
+
+  app.get('/api/isLoggedIn', isLoggedIn, (req, res) => {
+    debug('isLoggedIn last step?')
+    res.send(req.user)
+  })
 }
 
 module.exports = {init}

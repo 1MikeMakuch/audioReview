@@ -47,8 +47,10 @@ async function doit() {
   if (sameSite) {
     cookie.sameSite = sameSite
   }
-  cookie.httpOnly = true
+  cookie.httpOnly = process.env.COOKIE_HTTP_ONLY || false
+
   cookie.originalMaxAge = 1000 * 300 // 5 mins
+
   debug("before process.env.ENVIRONMENT === 'development'")
   if (process.env.ENVIRONMENT === 'development') {
     let sessionOptions = {

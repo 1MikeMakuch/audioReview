@@ -10,16 +10,17 @@ import tapes from '../constants'
 //import Login from './Login'
 
 function Tape(props) {
-  //  const [tape, setTape] = useState(null)
+  const loggedIn = props.loggedIn
   let tape = props.tape - 1
-  console.log('tape', tape)
+  console.log('Tape', {tape, loggedIn})
   let tapeSection = ''
   if (null !== tape && 0 <= tape && tape <= tapes.length) {
     tapeSection = (
       <Card>
+        {!loggedIn && <div>Please log in to listen</div>}
         <Card.Body>
           {tapes[tape].map((mp3, i) => (
-            <MP3 key={i} file={mp3} name={Number(tape) + 1 + '-' + (i + 1)} />
+            <MP3 key={i} file={mp3} name={Number(tape) + 1 + '-' + (i + 1)} loggedIn={loggedIn} />
           ))}
         </Card.Body>
       </Card>

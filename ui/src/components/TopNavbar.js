@@ -1,17 +1,22 @@
+import React, {useState} from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {Nav, Navbar} from 'react-bootstrap'
-//import {Container, Row, Col} from 'react-bootstrap'
-//import Accordion from 'react-bootstrap/Accordion'
 import './App.css'
-import React from 'react'
 import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom'
-
-import {useState} from 'react'
-
 import Login from './Login'
 import Tape from './Tape'
 
-function TopNavbar() {
+function TopNavbar(props) {
+  const loggedIn = props.loggedIn
+  const setLoggedIn = props.setLoggedIn
+  const user = props.user
+
+  console.log('TopNavBar', loggedIn)
+
+  let nickname
+  if (user && user.name) {
+    nickname = user.name.replace(/ .*/, '')
+  }
   return (
     <Router>
       <div>
@@ -19,7 +24,7 @@ function TopNavbar() {
           <header className="App-header">Dollahite tapes </header>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
+            <Nav className="mr-auto" className="container-fluid">
               <Nav.Link as={Link} to="/tape1">
                 Tape 1
               </Nav.Link>
@@ -29,8 +34,8 @@ function TopNavbar() {
               <Nav.Link as={Link} to="/tape3">
                 Tape 3
               </Nav.Link>
-              <Nav.Link as={Link} to="/login">
-                Loginx
+              <Nav.Link as={Link} to="/login" className="ml-auto">
+                {nickname ? nickname : 'Login'}
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -38,19 +43,19 @@ function TopNavbar() {
 
         <Switch>
           <Route path="/login">
-            <Login />
+            <Login setLoggedIn={setLoggedIn} loggedIn={loggedIn} />
           </Route>
           <Route path="/tape1">
-            <Tape tape="1" />
+            <Tape tape="1" loggedIn={loggedIn} />
           </Route>
           <Route path="/tape2">
-            <Tape tape="2" />
+            <Tape tape="2" loggedIn={loggedIn} />
           </Route>
           <Route path="/tape3">
-            <Tape tape="3" />
+            <Tape tape="3" loggedIn={loggedIn} />
           </Route>
           <Route path="/">
-            <div>xyzzy</div>
+            <div>Technical difficulties...</div>
           </Route>
         </Switch>
       </div>
