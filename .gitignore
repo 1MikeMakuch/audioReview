@@ -1,0 +1,15 @@
+node_modules
+package-lock.json
+yarn.lock
+.*.swp
+.*.un~
+*#*#
+.#*
+*log
+data
+README.html
+misc
+yarn.lock
+.emacs.desktop*
+.env
+.eslintcache
