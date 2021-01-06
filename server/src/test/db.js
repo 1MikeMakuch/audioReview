@@ -177,28 +177,34 @@ describe('db', async function() {
     expect(r.email).to.equal(user.email)
     expect(r.name).to.equal(user.name)
 
-    // delete
-    r = await db.users.del({id})
-    expect(r.affectedRows).to.equal(1)
-    expect(r.warningStatus).to.equal(0)
-
-    // confirm it was deleted
-    r = await db.users.get({id})
-    expect(r).to.be.undefined
+    let user0 = Object.assign({}, user)
 
     // create 1 more
-    user.email = 'plugh@xyzzy.xyz'
-    user = await db.users.create(user)
+    let user1 = Object.assign({}, user)
+    user1.email = 'plugh@xyzzy.xyz'
+    user1 = await db.users.create(user1)
 
-    id = user.id
+    // getUsers
+    let users = await db.users.select()
+    debug('users', JSON.stringify(users))
+    expect(users.length).to.be.gt(1)
 
-    // delete by email
-    r = await db.users.del({email: user.email})
+    // delete
+    r = await db.users.del({id: user0.id})
     expect(r.affectedRows).to.equal(1)
     expect(r.warningStatus).to.equal(0)
 
     // confirm it was deleted
-    r = await db.users.get({email: user.email})
+    r = await db.users.get({id: user0.id})
+    expect(r).to.be.undefined
+
+    // delete by email
+    r = await db.users.del({email: user1.email})
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+
+    // confirm it was deleted
+    r = await db.users.get({email: user1.email})
     expect(r).to.be.undefined
   })
 })

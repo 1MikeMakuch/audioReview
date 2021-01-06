@@ -174,7 +174,7 @@ async function delKeyVals(req, res) {
   }
 }
 
-async function getUsers(req, res) {
+async function getUser(req, res) {
   let id = _.get(req.params, 'id')
   let email = _.get(req.query, 'email')
 
@@ -188,6 +188,18 @@ async function getUsers(req, res) {
   let result
   try {
     result = await db.users.get(query)
+  } catch (e) {
+    debugE(e)
+    return res.sendStatus(404).send(e)
+  }
+  if (undefined === result) res.sendStatus(404)
+
+  res.send(result)
+}
+async function getUsers(req, res) {
+  let result
+  try {
+    result = await db.users.select(req.query)
   } catch (e) {
     debugE(e)
     return res.sendStatus(404).send(e)
@@ -490,7 +502,8 @@ function init(app) {
   app.put('/api/keyvals/:id', isLoggedIn, postKeyVals)
   app.delete('/api/keyvals/:id', isLoggedIn, delKeyVals)
 
-  app.get('/api/users/:id?', isLoggedIn, getUsers)
+  app.get('/api/users/:id', isLoggedIn, getUser)
+  app.get('/api/users', getUsers)
   app.post('/api/users/', isLoggedIn, postUsers)
   app.put('/api/users/:id', isLoggedIn, putUsers)
   app.delete('/api/users/:id', isLoggedIn, delUsers)

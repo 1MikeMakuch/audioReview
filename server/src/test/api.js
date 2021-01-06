@@ -3,8 +3,8 @@
 const process = require('process')
 const chai = require('chai')
 const db = require('../db')
-const debug = require('debug')('dt:test:db')
-const debugE = require('debug')('dt:error:db')
+const debug = require('debug')('dt:test:apis')
+const debugE = require('debug')('dt:error:apis')
 
 chai.use(require('chai-http'))
 
@@ -52,7 +52,7 @@ before('init db', async function() {
   await login()
 })
 after('cleanup', async function() {
-  //  await db.users.del({email: user.email})
+  await db.users.del({email: user.email})
 })
 describe('api', async function() {
   it('isLoggedIn', async function() {
@@ -192,7 +192,7 @@ describe('api', async function() {
   })
 
   it('users', async function() {
-    let user = {
+    let user0 = {
       name: 'Joe User',
       email: 'joe@xyzzy.xyz'
     }
@@ -200,53 +200,87 @@ describe('api', async function() {
     // create user
     let r = await request
       .post('/api/users')
-      .send(user)
+      .send(user0)
       .set(auth)
     expect(r.status).to.equal(201)
-    expect(r.body.name).to.equal(user.name)
-    expect(r.body.emai).to.equal(user.emai)
-    let id = r.body.id
+    expect(r.body.name).to.equal(user0.name)
+    expect(r.body.emai).to.equal(user0.emai)
+    user0 = Object.assign({}, r.body)
+    debug('user0 created id', user0.id)
 
     // can't create duplicate
     r = await request
       .post('/api/users')
-      .send(user)
+      .send(user0)
       .set(auth)
     expect(r.status).to.equal(400)
+    debug('user didnt create', JSON.stringify(r.body))
 
     // read it by id
-    r = await request.get(`/api/users/${id}`).set(auth)
+    r = await request.get(`/api/users/${user0.id}`).set(auth)
     expect(r.status).to.equal(200)
-    expect(r.body.name).to.equal(user.name)
-    expect(r.body.emai).to.equal(user.emai)
+    expect(r.body.name).to.equal(user0.name)
+    expect(r.body.emai).to.equal(user0.emai)
 
     // read it by email
-    r = await request.get(`/api/users/?email=${user.email}`).set(auth)
+    r = await request.get(`/api/users/?email=${user0.email}`).set(auth)
     expect(r.status).to.equal(200)
-    expect(r.body.name).to.equal(user.name)
-    expect(r.body.emai).to.equal(user.emai)
+    expect(r.body.name).to.equal(user0.name)
+    expect(r.body.emai).to.equal(user0.emai)
 
     // update by id
-    user.name = 'Sally User'
+    user0.name = 'Sally User'
     r = await request
-      .put(`/api/users/${id}`)
-      .send({name: user.name})
+      .put(`/api/users/${user0.id}`)
+      .send({name: user0.name})
       .set(auth)
     expect(r.status).to.equal(201)
 
     // read/verify the update by id
-    r = await request.get(`/api/users/${id}`).set(auth)
+    r = await request.get(`/api/users/${user0.id}`).set(auth)
     expect(r.status).to.equal(200)
-    expect(r.body.name).to.equal(user.name)
-    expect(r.body.emai).to.equal(user.emai)
+    expect(r.body.name).to.equal(user0.name)
+    expect(r.body.emai).to.equal(user0.emai)
 
-    // delete
-    r = await request.delete(`/api/users/${id}`).set(auth)
+    // create 2nd user
+    let user1 = Object.assign({}, user0)
+    user1.email = 'joe1@example.com'
+    r = await request
+      .post('/api/users')
+      .set(auth)
+      .send(user1)
+
+    expect(r.status).to.equal(201)
+    expect(r.body.name).to.equal(user1.name)
+    expect(r.body.email).to.equal(user1.email)
+    user1 = Object.assign({}, r.body)
+    debug('user1 created id', user1.id)
+
+    // get all users
+    r = await request.get(`/api/users`).set(auth)
     expect(r.status).to.equal(200)
-    debug('delete user', id)
+    expect(Array.isArray(r.body)).is.true
+    expect(r.body.find(u => u.id == user.id))
+    expect(r.body.find(u => u.id == user0.id))
+    expect(r.body.find(u => u.id == user1.id))
+
+    // delete user0
+    r = await request.delete(`/api/users/${user0.id}`).set(auth)
+    expect(r.status).to.equal(200)
+    debug('delete user', user0.id)
 
     // check it's gone
-    r = await request.get(`/api/users/${id}`).set(auth)
+    r = await request.get(`/api/users/${user0.id}`).set(auth)
+    expect(r.status).to.equal(404)
+    debug('check its deleted')
+
+    // delete user1
+    r = await request.delete(`/api/users/${user1.id}`).set(auth)
+    expect(r.status).to.equal(200)
+    debug('deleted user', user1.id)
+
+    // check it's gone
+    r = await request.get(`/api/users/${user1.id}`).set(auth)
     expect(r.status).to.equal(404)
     debug('check its deleted')
   })

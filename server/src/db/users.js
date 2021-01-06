@@ -6,7 +6,6 @@ const debugE = require('debug')('dt:error::db:users')
 var mysql
 
 async function get(query) {
-  debug('get', query)
   if (!query.id && !query.email) {
     throw new Error('id or email required')
   }
@@ -27,6 +26,20 @@ async function get(query) {
     return undefined
   }
   return u
+}
+async function select(query) {
+  debug('select', JSON.stringify(query))
+  if (query && (query.id || query.email)) {
+    debug('refer to get')
+    return await get(query)
+  }
+  let sql = 'select * from users'
+  let u = await mysql(sql)
+  if (u && u.length) {
+    return u
+  } else if (u.length === 0) {
+    return undefined
+  }
 }
 async function create(user) {
   debug('create', user)
@@ -85,4 +98,4 @@ async function init(config) {
   mysql = config.execute
 }
 
-module.exports = {init, create, get, update, del}
+module.exports = {init, create, get, update, del, select}
