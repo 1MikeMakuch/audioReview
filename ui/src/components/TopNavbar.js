@@ -7,6 +7,7 @@ import Login from './Login'
 import Tape from './Tape'
 
 function TopNavbar(props) {
+  const [users, setUsers] = useState({})
   const loggedIn = props.loggedIn
   const setLoggedIn = props.setLoggedIn
   const user = props.user
@@ -15,6 +16,9 @@ function TopNavbar(props) {
   if (user && user.name) {
     nickname = user.name.replace(/ .*/, '')
   }
+
+  if (0 === Object.keys(users).length) getUsers()
+
   return (
     <Router>
       <div>
@@ -22,7 +26,7 @@ function TopNavbar(props) {
           <header className="App-header">Dollahite tapes </header>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto" className="container-fluid">
+            <Nav className="mr-auto container-fluid">
               <Nav.Link as={Link} to="/tape1">
                 Tape 1
               </Nav.Link>
@@ -31,6 +35,27 @@ function TopNavbar(props) {
               </Nav.Link>
               <Nav.Link as={Link} to="/tape3">
                 Tape 3
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape4">
+                Tape 4
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape5">
+                Tape 5
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape6">
+                Tape 6
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape7">
+                Tape 7
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape8">
+                Tape 8
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape9">
+                Tape 9
+              </Nav.Link>
+              <Nav.Link as={Link} to="/tape10">
+                Tape 10
               </Nav.Link>
               <Nav.Link as={Link} to="/login" className="ml-auto">
                 {nickname ? nickname : 'Login'}
@@ -44,13 +69,13 @@ function TopNavbar(props) {
             <Login setLoggedIn={setLoggedIn} loggedIn={loggedIn} />
           </Route>
           <Route path="/tape1">
-            <Tape tape="1" loggedIn={loggedIn} />
+            <Tape tape="1" loggedIn={loggedIn} users={users} />
           </Route>
           <Route path="/tape2">
-            <Tape tape="2" loggedIn={loggedIn} />
+            <Tape tape="2" loggedIn={loggedIn} users={users} />
           </Route>
           <Route path="/tape3">
-            <Tape tape="3" loggedIn={loggedIn} />
+            <Tape tape="3" loggedIn={loggedIn} users={users} />
           </Route>
           <Route path="/">
             <div>Technical difficulties...</div>
@@ -59,5 +84,22 @@ function TopNavbar(props) {
       </div>
     </Router>
   )
+
+  async function getUsers() {
+    let request, url
+
+    url = process.env.REACT_APP_SERVER_URL + '/api/users'
+    request = {
+      method: 'get',
+      credentials: 'include'
+    }
+
+    let raw = await fetch(url, request)
+
+    let usersList = await raw.json()
+    let usersObj = {}
+    usersList.map(user => (usersObj[user.id] = user))
+    setUsers(usersObj)
+  }
 }
 export default TopNavbar
