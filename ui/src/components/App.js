@@ -1,22 +1,27 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
-import {Button, Nav, Navbar, Card} from 'react-bootstrap'
-//import {Container, Row, Col} from 'react-bootstrap'
-//import Accordion from 'react-bootstrap/Accordion'
 import './App.css'
-import React, {useState} from 'react'
-import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom'
-import MP3 from './MP3'
-import tapes from '../constants'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
+import React, {useEffect, useState} from 'react'
 import TopNavbar from './TopNavbar'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
-  isLoggedIn()
-  return <TopNavbar user={user} loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+  console.log('App', {user, loggedIn})
+  useEffect(() => {
+    isLoggedIn().then(data => {
+      console.log('App isLoggedIn then(data', data.id, data.email)
+      if (data && data.id && data.email) {
+        setUser(data)
+        setLoggedIn(true)
+      }
+    })
+  }, [])
+
+  return <TopNavbar user={user} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setUser={setUser} />
 
   async function isLoggedIn() {
-    let response,
+    let response = false,
       request = {
         method: 'get',
         credentials: 'include'
@@ -26,15 +31,20 @@ function App() {
     try {
       response = await fetch(url, request)
       response = await response.json()
-    } catch (e) {}
-
-    if (response?.id && response.email) {
-      if (!loggedIn) setLoggedIn(true)
-      if (!user) setUser(response)
-    } else {
-      if (loggedIn) setLoggedIn(false)
-      if (user) setUser(null)
+    } catch (e) {
+      console.log('fetch e', e)
+      return false
     }
+    console.log('App isLoggedIn response', response)
+    return response
+
+    //     if (response?.id && response.email) {
+    //       if (!loggedIn) setLoggedIn(true)
+    //       if (!user) setUser(response)
+    //     } else {
+    //       if (loggedIn) setLoggedIn(false)
+    //       if (user) setUser(null)
+    //     }
   }
 }
 export default App

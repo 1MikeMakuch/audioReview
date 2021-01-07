@@ -7,7 +7,6 @@ import queryString from 'query-string'
 
 var firstSubmit = true
 var token
-//var loggedIn = false
 
 function Login(props) {
   const [email, setEmail] = useState('1mikemakuch@gmail.com')
@@ -15,6 +14,7 @@ function Login(props) {
   const [pageState, setPageState] = useState([false, false])
   const setLoggedIn = props.setLoggedIn
   const loggedIn = props.loggedIn
+  const setUser = props.setUser
 
   const qs = queryString.parse(window.location.search)
   if (qs && qs.token) {
@@ -27,7 +27,6 @@ function Login(props) {
     if (loggedIn) {
       //console.log('loggedIn', token)
     } else {
-      //loggedIn = true
       let request, response
       let url = process.env.REACT_APP_SERVER_URL + '/api/login?token=' + token
       request = {
@@ -37,10 +36,13 @@ function Login(props) {
 
       response = await fetch(url, request)
       response = await response.json()
+      console.log('Login', response)
 
-      setPageState(['loginResponse', response.data])
-      setLoggedIn(true)
-      //loggedIn = true
+      setPageState(['loginResponse', response])
+      if (response && response.id && response.email) {
+        setUser(response)
+        setLoggedIn(true)
+      }
     }
   }
 

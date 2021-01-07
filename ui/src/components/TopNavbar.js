@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {Nav, Navbar} from 'react-bootstrap'
 import './App.css'
@@ -11,13 +11,20 @@ function TopNavbar(props) {
   const loggedIn = props.loggedIn
   const setLoggedIn = props.setLoggedIn
   const user = props.user
+  const setUser = props.setUser
 
   let nickname
   if (user && user.name) {
     nickname = user.name.replace(/ .*/, '')
   }
 
-  if (0 === Object.keys(users).length) getUsers()
+  useEffect(() => {
+    getUsers().then(users => {
+      setUsers(users)
+    })
+  }, [])
+
+  //  if (0 === Object.keys(users).length) getUsers()
 
   return (
     <Router>
@@ -66,7 +73,7 @@ function TopNavbar(props) {
 
         <Switch>
           <Route path="/login">
-            <Login setLoggedIn={setLoggedIn} loggedIn={loggedIn} />
+            <Login setLoggedIn={setLoggedIn} loggedIn={loggedIn} setUser={setUser} />
           </Route>
           <Route path="/tape1">
             <Tape tape="1" loggedIn={loggedIn} users={users} />
