@@ -1,8 +1,8 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import './Login.css'
-import {Redirect, useLocation} from 'react-router-dom'
+import {Redirect} from 'react-router-dom'
 import queryString from 'query-string'
 
 var firstSubmit = true
@@ -51,7 +51,7 @@ function Login(props) {
   async function handleLogout(e) {
     e.preventDefault()
 
-    let request, response, url
+    let request, url
 
     url = process.env.REACT_APP_SERVER_URL + '/api/logout'
     request = {
@@ -59,7 +59,7 @@ function Login(props) {
       credentials: 'include'
     }
 
-    let raw = await fetch(url, request)
+    await fetch(url, request)
 
     setLoggedIn(false)
     setPageState(['loggedOut', 'loggedOut'])

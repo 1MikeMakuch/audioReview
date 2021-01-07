@@ -36,6 +36,17 @@ function MP3(props) {
     e.preventDefault()
     if (!loggedIn) return
     console.log('handleLike', props.file)
+    let request, url
+
+    //     url = process.env.REACT_APP_SERVER_URL + `/api/comments/${props.file}`
+    //     request = {
+    //       method: 'get',
+    //       credentials: 'include'
+    //     }
+
+    //    let raw = await fetch(url, request)
+
+    //    return await raw.json()
   }
   function handleComment(e) {
     e.preventDefault()
