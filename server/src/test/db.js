@@ -1,10 +1,11 @@
 /* global describe, it, before, after afterEach */
 
-const process = require('process')
 const chai = require('chai')
 const db = require('../db')
 const debug = require('debug')('dt:test:db')
 const debugE = require('debug')('dt:error:db')
+const process = require('process')
+const utils = require('../utils')
 
 chai.use(require('chai-http'))
 
@@ -134,8 +135,56 @@ describe('db', async function() {
     expect(r).to.be.undefined
   })
 
+  it('likes', async function() {
+    let userid = 999
+    let mp3 = utils.generateRandomString(10)
+
+    // like 1 mp3
+    r = await db.likes.set(userid, mp3)
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(1)
+
+    // like it again count is still 1
+    r = await db.likes.set(userid, mp3)
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(1)
+
+    // like same mp3 different user count is 2
+    userid = 998
+    r = await db.likes.set(userid, mp3)
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(2)
+
+    // delete 1 of them
+    r = await db.likes.del(mp3, 999)
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(1)
+
+    // delete 2nd
+    r = await db.likes.del(mp3, 998)
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(0)
+
+    // should be 0
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(0)
+
+    // now create 2 and delete with 1 del call
+    userid = 999
+    r = await db.likes.set(userid, mp3)
+    userid = 998
+    r = await db.likes.set(userid, mp3)
+
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(2)
+
+    // delete both with 1 del()
+    r = await db.likes.del(mp3)
+    r = await db.likes.get(mp3)
+    expect(r.likes).to.equal(0)
+  })
+
   it('users', async function() {
-    debug('users')
     let user = {
       name: 'Joe User',
       email: 'joe@testuserexample.xyz'
@@ -144,7 +193,7 @@ describe('db', async function() {
     // create
 
     user = await db.users.create(user)
-    debug('user', user)
+
     let id = user.id
 
     // read
@@ -186,7 +235,7 @@ describe('db', async function() {
 
     // getUsers
     let users = await db.users.select()
-    debug('users', JSON.stringify(users))
+
     expect(users.length).to.be.gt(1)
 
     // delete

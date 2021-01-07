@@ -44,10 +44,9 @@ async function getComments(req, res) {
   res.json(results)
 }
 async function postComments(req, res) {
-  let userid = Number(req.params.userid)
-  let id = req.params.id
-  let comments = req.body.comments
-
+  let userid = req?.params?.userid
+  let id = req?.params?.id
+  let comments = req?.body?.comments
   debug('postComments', userid, id, comments)
 
   if (!id) {
@@ -152,6 +151,7 @@ async function postKeyVals(req, res) {
 
   res.sendStatus(201)
 }
+
 async function delKeyVals(req, res) {
   let id = req.params.id
 
@@ -288,6 +288,66 @@ async function delUsers(req, res) {
   } else {
     res.sendStatus(400)
   }
+}
+
+async function getLikes(req, res) {
+  let mp3 = req.params.mp3
+
+  if (!mp3) {
+    return res.status(404).send('mp3id required')
+  }
+
+  let result
+  try {
+    result = await db.likes.get(mp3)
+  } catch (e) {
+    debugE(e)
+    return res.status(404).send(e)
+  }
+  if (undefined === result) res.sendStatus(404)
+
+  res.send(result)
+}
+async function setLikes(req, res) {
+  let mp3 = req.params.mp3
+  let userid = req.params.userid
+
+  if (!mp3) {
+    return res.status(404).send('mp3id required')
+  }
+  if (!userid) {
+    return res.status(404).send('userid required')
+  }
+
+  let result
+  try {
+    result = await db.likes.set(userid, mp3)
+  } catch (e) {
+    debugE(e)
+    return res.status(404).send(e)
+  }
+  if (undefined === result) res.sendStatus(404)
+  debug('setLikes result', JSON.stringify(result))
+  res.send(result)
+}
+async function delLikes(req, res) {
+  let mp3 = req.params.mp3
+  let userid = req.params.userid
+
+  if (!mp3) {
+    return res.status(404).send('mp3id required')
+  }
+
+  let result
+  try {
+    result = await db.likes.del(mp3, userid)
+  } catch (e) {
+    debugE(e)
+    return res.status(404).send(e)
+  }
+  if (undefined === result) res.sendStatus(404)
+
+  res.send(result)
 }
 
 const generateLoginJWT = user => {
@@ -501,6 +561,10 @@ function init(app) {
   app.post('/api/keyvals/:id', isLoggedIn, postKeyVals)
   app.put('/api/keyvals/:id', isLoggedIn, postKeyVals)
   app.delete('/api/keyvals/:id', isLoggedIn, delKeyVals)
+
+  app.get('/api/likes/:mp3', getLikes)
+  app.post('/api/likes/:mp3/:userid', isLoggedIn, setLikes)
+  app.delete('/api/likes/:mp3/:userid?', isLoggedIn, delLikes)
 
   app.get('/api/users/:id', isLoggedIn, getUser)
   app.get('/api/users', getUsers)

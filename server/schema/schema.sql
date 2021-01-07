@@ -32,3 +32,11 @@ create table users (
     unique key email (email),
     dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+drop table if exists likes;
+create table likes (
+    userid int(11) not null,
+    mp3 varchar(50) not null,
+    primary key(userid,mp3),
+    dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+

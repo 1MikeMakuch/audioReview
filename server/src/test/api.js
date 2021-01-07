@@ -5,6 +5,7 @@ const chai = require('chai')
 const db = require('../db')
 const debug = require('debug')('dt:test:apis')
 const debugE = require('debug')('dt:error:apis')
+const utils = require('../utils')
 
 chai.use(require('chai-http'))
 
@@ -283,5 +284,47 @@ describe('api', async function() {
     r = await request.get(`/api/users/${user1.id}`).set(auth)
     expect(r.status).to.equal(404)
     debug('check its deleted')
+  })
+
+  it('likes', async function() {
+    let userid0 = 999
+    let userid1 = 998
+    let mp30 = utils.generateRandomString(10)
+    let mp31 = utils.generateRandomString(10)
+
+    let r
+
+    // like 1st
+    r = await request.post(`/api/likes/${mp30}/${userid0}`).set(auth)
+    expect(r.body.affectedRows).to.equal(1)
+    r = await request.get(`/api/likes/${mp30}`)
+    expect(r.body.likes).to.equal(1)
+
+    // like 2nd
+    r = await request.post(`/api/likes/${mp30}/${userid1}`).set(auth)
+    expect(r.body.affectedRows).to.equal(1)
+    r = await request.get(`/api/likes/${mp30}`)
+    expect(r.body.likes).to.equal(2)
+
+    // delete 1 at a time
+    r = await request.del(`/api/likes/${mp30}/${userid0}`).set(auth)
+    expect(r.body.affectedRows).to.equal(1)
+    r = await request.get(`/api/likes/${mp30}`)
+    expect(r.body.likes).to.equal(1)
+    // delete 2nd
+    r = await request.del(`/api/likes/${mp30}/${userid1}`).set(auth)
+    expect(r.body.affectedRows).to.equal(1)
+    r = await request.get(`/api/likes/${mp30}`)
+    expect(r.body.likes).to.equal(0)
+
+    // like 2 again and delete both in 1 del()
+    r = await request.post(`/api/likes/${mp30}/${userid0}`).set(auth)
+    expect(r.body.affectedRows).to.equal(1)
+    r = await request.post(`/api/likes/${mp30}/${userid1}`).set(auth)
+    expect(r.body.affectedRows).to.equal(1)
+    r = await request.get(`/api/likes/${mp30}`)
+    expect(r.body.likes).to.equal(2)
+    r = await request.del(`/api/likes/${mp30}`).set(auth)
+    expect(r.body.affectedRows).to.equal(2)
   })
 })
