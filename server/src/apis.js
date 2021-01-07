@@ -27,16 +27,16 @@ const jwtOptions = {
 }
 
 async function getComments(req, res) {
-  let id = req.params.id
+  let mp3 = req.params.mp3
 
-  if (!id) {
+  if (!mp3) {
     return res.sendStatus(404)
   }
 
   let results
 
   try {
-    results = await db.comments.get(id)
+    results = await db.comments.get(mp3)
   } catch (e) {
     debugE(e)
     return res.sendStatus(404)
@@ -44,16 +44,16 @@ async function getComments(req, res) {
   res.json(results)
 }
 async function postComments(req, res) {
-  let userid = req?.params?.userid
-  let id = req?.params?.id
+  let userid = req?.user?.id
+  let mp3 = req?.params?.mp3
   let comments = req?.body?.comments
-  debug('postComments', userid, id, comments)
+  debug('postComments', userid, mp3, comments)
 
-  if (!id) {
-    debugE('id required')
+  if (!mp3) {
+    debugE('mp3 required')
     return res
       .status(400)
-      .send('id required')
+      .send('mp3 required')
       .end()
   }
   if (!userid) {
@@ -73,7 +73,7 @@ async function postComments(req, res) {
   debug('xxxx')
   let result
   try {
-    result = await db.comments.create(userid, id, comments)
+    result = await db.comments.create(userid, mp3, comments)
   } catch (e) {
     debugE(e)
     return res.sendStatus(400)
@@ -310,7 +310,7 @@ async function getLikes(req, res) {
 }
 async function setLikes(req, res) {
   let mp3 = req.params.mp3
-  let userid = req.params.userid
+  let userid = req?.user?.id
 
   if (!mp3) {
     return res.status(404).send('mp3id required')
@@ -332,7 +332,7 @@ async function setLikes(req, res) {
 }
 async function delLikes(req, res) {
   let mp3 = req.params.mp3
-  let userid = req.params.userid
+  let userid = req?.user?.id
 
   if (!mp3) {
     return res.status(404).send('mp3id required')
@@ -553,8 +553,8 @@ function init(app) {
   }
 
   app.get('/api/healthz', health)
-  app.get('/api/comments/:id', getComments)
-  app.post('/api/comments/:id/:userid', isLoggedIn, postComments)
+  app.get('/api/comments/:mp3', getComments)
+  app.post('/api/comments/:mp3', isLoggedIn, postComments)
   app.delete('/api/comments/:id', isLoggedIn, delComments)
 
   app.get('/api/keyvals/:id', getKeyVals)
@@ -563,8 +563,8 @@ function init(app) {
   app.delete('/api/keyvals/:id', isLoggedIn, delKeyVals)
 
   app.get('/api/likes/:mp3', getLikes)
-  app.post('/api/likes/:mp3/:userid', isLoggedIn, setLikes)
-  app.delete('/api/likes/:mp3/:userid?', isLoggedIn, delLikes)
+  app.post('/api/likes/:mp3', isLoggedIn, setLikes)
+  app.delete('/api/likes/:mp3', isLoggedIn, delLikes)
 
   app.get('/api/users/:id', isLoggedIn, getUser)
   app.get('/api/users', getUsers)
