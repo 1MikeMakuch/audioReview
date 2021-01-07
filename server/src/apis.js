@@ -47,7 +47,6 @@ async function postComments(req, res) {
   let userid = req?.user?.id
   let mp3 = req?.params?.mp3
   let comments = req?.body?.comments
-  debug('postComments', userid, mp3, comments)
 
   if (!mp3) {
     debugE('mp3 required')
@@ -70,7 +69,6 @@ async function postComments(req, res) {
       .send('comments required')
       .end()
   }
-  debug('xxxx')
   let result
   try {
     result = await db.comments.create(userid, mp3, comments)
@@ -327,7 +325,6 @@ async function setLikes(req, res) {
     return res.status(404).send(e)
   }
   if (undefined === result) res.sendStatus(404)
-  debug('setLikes result', JSON.stringify(result))
   res.send(result)
 }
 async function delLikes(req, res) {
@@ -364,7 +361,6 @@ const generateLoginJWT = user => {
 
 async function requestLoginLink(req, res, next) {
   //
-  debug('requestLoginLink', JSON.stringify(req.body.email))
 
   await new Promise(resolve => {
     expressValidator
@@ -396,7 +392,6 @@ async function requestLoginLink(req, res, next) {
   let user = await db.users.get({email})
   if (!user) {
     user = await db.users.create({email, name})
-    debug('requestLoginLink', JSON.stringify(user))
   }
 
   generateLoginJWT(user).then(loginToken => {
@@ -406,7 +401,7 @@ async function requestLoginLink(req, res, next) {
     if ('development' === process.env.ENVIRONMENT) {
       body = {dev: {'x-dollahite-tapes-app': loginToken}}
     }
-    debug('sending 200 ok', JSON.stringify(body))
+
     res.status(200)
     if (body) res.send(body)
     res.end()
@@ -430,7 +425,6 @@ function sendAuthenticationEmail(user, token) {
   //  utils.sendMail(mail)
 }
 function magicLink(req, res, next) {
-  debug('magicLink', req.query)
   const {incorrectToken, token} = req.query
 
   if (token) {
@@ -443,7 +437,6 @@ function magicLink(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-  debug('authenticate 0', JSON.stringify(req.query))
   passport.authenticate(
     'jwt',
     {
@@ -453,10 +446,6 @@ function authenticate(req, res, next) {
       //      passReqToCallback: true // doesn't seem to be needed
     },
     (err, user, info) => {
-      debug('authenticate 1 err', err)
-      debug('authenticate 2 user', JSON.stringify(user))
-      debug('authenticate 3 info', info)
-      debug('req.session', JSON.stringify(req.session))
       if (!user) {
         debug('no user in token')
         return res.sendStatus(401)
@@ -466,7 +455,6 @@ function authenticate(req, res, next) {
         if (e) next(e)
         req.session.cookie.expires = 1000 * 86400 * 90
         res.json(req.user)
-        debug('req.user', JSON.stringify(req.user))
       })
     }
   )(req, res, next)
@@ -485,10 +473,9 @@ function init(app) {
     'jwt',
     new JwtStrategy(jwtOptions2, (token, done) => {
       const uuid = token.sub
-      debug('JwtStrategy uuid:', uuid, JSON.stringify(token))
+
       //      userRepository.fetch(uuid).then(user => {
       db.users.get({id: uuid}).then(user => {
-        debug('db.users.get:', JSON.stringify(user))
         if (user) {
           done(null, user)
         } else {
@@ -499,7 +486,6 @@ function init(app) {
   )
 
   passport.serializeUser((user, next) => {
-    debug('passport.serializeUser', user.id)
     if (user && user.id) {
       next(null, user.id)
     } else {
@@ -508,22 +494,18 @@ function init(app) {
   })
 
   passport.deserializeUser((id, next) => {
-    debug('passport.deserializeUser', id)
     db.users.get({id}).then(user => {
-      debug('passport.deserializeUser', JSON.stringify(user))
       if (user) next(null, user)
       else next(null, false)
     })
   })
 
   function login(req, res, next) {
-    debug('login', JSON.stringify(req.query))
     const {incorrectToken, token} = req.query
 
     if (token) {
       return authenticate(req, res, next)
     } else {
-      debug('login no token 401')
       //res.redirect(301, process.env.UI_URL + '/login')
       res.sendStatus(401)
     }

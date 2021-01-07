@@ -16,6 +16,7 @@ function TopNavbar(props) {
   let nickname
   if (user && user.name) {
     nickname = user.name.replace(/ .*/, '')
+    user.nickname = nickname
   }
 
   useEffect(() => {
@@ -76,13 +77,13 @@ function TopNavbar(props) {
             <Login setLoggedIn={setLoggedIn} loggedIn={loggedIn} setUser={setUser} />
           </Route>
           <Route path="/tape1">
-            <Tape tape="1" loggedIn={loggedIn} users={users} />
+            <Tape tape="1" loggedIn={loggedIn} users={users} user={user} />
           </Route>
           <Route path="/tape2">
-            <Tape tape="2" loggedIn={loggedIn} users={users} />
+            <Tape tape="2" loggedIn={loggedIn} users={users} user={user} />
           </Route>
           <Route path="/tape3">
-            <Tape tape="3" loggedIn={loggedIn} users={users} />
+            <Tape tape="3" loggedIn={loggedIn} users={users} user={user} />
           </Route>
           <Route path="/">
             <div>Technical difficulties...</div>

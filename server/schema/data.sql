@@ -1,6 +1,8 @@
 delete from users ;
 delete from comments;
 delete from keyvals;
+delete from likes;
+
 alter table users auto_increment=1 ;
 alter table comments auto_increment=1 ;
 
