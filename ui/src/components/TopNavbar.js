@@ -106,7 +106,7 @@ function TopNavbar(props) {
     let usersList = await raw.json()
     let usersObj = {}
     usersList.map(user => (usersObj[user.id] = user))
-    setUsers(usersObj)
+    return usersObj
   }
 }
 export default TopNavbar

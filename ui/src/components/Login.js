@@ -36,7 +36,6 @@ function Login(props) {
 
       response = await fetch(url, request)
       response = await response.json()
-      console.log('Login', response)
 
       setPageState(['loginResponse', response])
       if (response && response.id && response.email) {
@@ -63,6 +62,8 @@ function Login(props) {
     let raw = await fetch(url, request)
 
     setLoggedIn(false)
+    setPageState(['loggedOut', 'loggedOut'])
+    setUser(null)
   }
 
   async function handleSubmit(e) {
@@ -100,8 +101,14 @@ function Login(props) {
     return showLoginResponse()
   } else if (pageState && pageState[0] === 'checkEmail') {
     return checkYourEmail()
+  } else if (pageState && pageState[0] === 'loggedOut') {
+    return loggedOut()
   } else {
     return mainLogin()
+  }
+
+  function loggedOut() {
+    return <div>You're logged out</div>
   }
 
   function showLoginResponse() {

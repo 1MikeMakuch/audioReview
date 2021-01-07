@@ -9,7 +9,6 @@ function Tape(props) {
   const loggedIn = props.loggedIn
   const users = props.users
   let tape = props.tape - 1
-
   let tapeSection = ''
   if (null !== tape && 0 <= tape && tape <= tapes.length) {
     tapeSection = (

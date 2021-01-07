@@ -34,20 +34,24 @@ function MP3(props) {
 
   function handleLike(e) {
     e.preventDefault()
+    if (!loggedIn) return
     console.log('handleLike', props.file)
   }
   function handleComment(e) {
     e.preventDefault()
+    if (!loggedIn) return
     console.log('handleComment', props.file)
   }
 
   let audio = <Button disabled={true}>Play</Button>
 
   let commentItems
+  console.log('MP3 users', users)
   if (comments && comments.length) {
     commentItems = comments.map((comment, i) => {
       let user = _.get(users, comment.userid)
-      let nickname = user?.name //String(user?.name).replace(/ .*/, '')
+      let nickname = user?.name
+
       return (
         <CardDeck
           key={i}
@@ -75,8 +79,6 @@ function MP3(props) {
         </CardDeck>
       )
     })
-  } else {
-    console.log(props.file, 'no comments')
   }
 
   if (loggedIn) {
