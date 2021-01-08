@@ -11,3 +11,64 @@ border: 1px;
 border-color: #cccccc;
 border-style: solid;
 }
+
+.like {
+        border-style: solid solid solid solid;
+        border-width: 2px;
+        border-color: #ffffff;
+
+}
+
+.comment {
+        border-style: solid solid solid solid;
+        border-width: 2px;
+        border-color: #ffffff;
+
+}
+.like:hover {
+        border-style: solid solid solid solid;
+        border-width: 2px;
+        border-color: #f0f0f0;
+
+}
+
+.comment:hover {
+        border-style: solid solid solid solid;
+        border-width: 2px;
+        border-color: #f0f0f0;
+
+}
+.like:active {
+        border-style: solid solid solid solid;
+        border-width: 2px;
+        border-color: #aaaaaa;
+
+}
+
+.comment:active {
+        border-style: solid solid solid solid;
+        border-width: 2px;
+        border-color: #aaaaaa;
+
+}
+
+
+figure.likes {
+          margin: 20px;
+          max-height: 3rem;
+          margin: 0
+}
+figcapture.likes {
+            max-width: 5rem;
+            max-height: 2rem;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: -35px;
+            margin-top: -10px
+}
+img.likes {
+            max-width: 6rem;
+            max-height: 3rem;
+            display: inline-block;
+            vertical-align: middle
+}

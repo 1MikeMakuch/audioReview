@@ -177,19 +177,34 @@ function MP3(props) {
         borderWidth: '1px',
         borderColor: '#f0f0f0',
         paddingBottom: '10px',
-        paddintTop: '10px'
+        paddingTop: '10px'
       }}
     >
       <Card style={{maxWidth: '4rem'}}>{props.name}</Card>
+      <figure className="likes">
+        <img className="likes" src="http://localhost:7002/likes.png" />
+        <figcapture className="likes">3</figcapture>
+      </figure>
       <Card style={{maxWidth: '20rem'}}>
         <div>
           {audio}
-          <img style={{maxWidth: '4rem'}} src="http://localhost:7002/like.png" onClick={handleLike} />
+          <img
+            className="like"
+            style={{
+              maxWidth: '10rem'
+            }}
+            src="http://localhost:7002/liked.png"
+            onClick={handleLike}
+          />
           &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-          <img style={{maxWidth: '8rem'}} src="http://localhost:7002/comment.png" onClick={handleComment} />
+          <img
+            className="comment"
+            style={{maxWidth: '8rem'}}
+            src="http://localhost:7002/comment.png"
+            onClick={handleComment}
+          />
         </div>
       </Card>
-
       <Card style={{textAlign: 'left'}}>
         <>{commentItems}</>
       </Card>
