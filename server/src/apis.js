@@ -289,7 +289,8 @@ async function delUsers(req, res) {
 }
 
 async function getLikes(req, res) {
-  let mp3 = req.params.mp3
+  let mp3 = req?.params?.mp3
+  let userid = req?.params?.userid
 
   if (!mp3) {
     return res.status(404).send('mp3id required')
@@ -297,7 +298,7 @@ async function getLikes(req, res) {
 
   let result
   try {
-    result = await db.likes.get(mp3)
+    result = await db.likes.get(mp3, userid)
   } catch (e) {
     debugE(e)
     return res.status(404).send(e)
@@ -327,6 +328,7 @@ async function setLikes(req, res) {
   if (undefined === result) res.sendStatus(404)
   res.send(result)
 }
+
 async function delLikes(req, res) {
   let mp3 = req.params.mp3
   let userid = req?.user?.id
@@ -544,7 +546,7 @@ function init(app) {
   app.put('/api/keyvals/:id', isLoggedIn, postKeyVals)
   app.delete('/api/keyvals/:id', isLoggedIn, delKeyVals)
 
-  app.get('/api/likes/:mp3', getLikes)
+  app.get('/api/likes/:mp3/:userid?', getLikes)
   app.post('/api/likes/:mp3', isLoggedIn, setLikes)
   app.delete('/api/likes/:mp3', isLoggedIn, delLikes)
 

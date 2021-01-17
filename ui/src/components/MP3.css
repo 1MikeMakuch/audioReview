@@ -58,7 +58,7 @@ figure.likes {
           max-height: 3rem;
           margin: 0
 }
-figcapture.likes {
+figcaption.likes {
             max-width: 5rem;
             max-height: 2rem;
             display: inline-block;

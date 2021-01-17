@@ -6,14 +6,25 @@ import {Button, Card, CardDeck} from 'react-bootstrap'
 require('dotenv').config() //({path: '../.env'})
 
 function MP3(props) {
+  //  console.log('MP3 0', props.user)
   const [comments, setComments] = useState(null)
+  const [likes, setLikes] = useState(null)
+  const [userLikes, setUserLikes] = useState(null)
   const [mp3Test, setMp3Test] = useState(null)
   const [addComment, setAddComment] = useState(null)
   const [commentAdded, setCommentAdded] = useState(false)
   const [newComment, setNewComment] = useState()
+  const [loggedInUser, setLoggedInUser] = useState(null)
   const loggedIn = props.loggedIn
   const users = props.users
-  const user = props.user
+  //  const user = props.user
+
+  if (!loggedInUser && props && props.user && props.user.id) {
+    //console.log('setLoggedInuser')
+    setLoggedInUser(props.user)
+  } else {
+    //console.log('!setLoggedInuser')
+  }
 
   if (!mp3Test) setMp3Test(props.file)
   let mp3url = process.env.REACT_APP_MP3URL
@@ -22,10 +33,22 @@ function MP3(props) {
     getComments().then(data => {
       setComments(data)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentAdded])
+  useEffect(() => {
+    getLikes().then(data => {
+      setLikes(data)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loggedInUser])
+  useEffect(() => {
+    getUserLikes().then(data => {
+      setUserLikes(data)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function getComments() {
-    console.log('getComments')
     let request, url
 
     url = process.env.REACT_APP_SERVER_URL + `/api/comments/${props.file}`
@@ -38,22 +61,67 @@ function MP3(props) {
     setCommentAdded(false)
     return await raw.json()
   }
+  async function getLikes() {
+    let request, url
+
+    url = process.env.REACT_APP_SERVER_URL + `/api/likes/${props.file}`
+    request = {
+      method: 'get',
+      credentials: 'include'
+    }
+
+    let raw = await fetch(url, request)
+    let r = await raw.json()
+
+    return r.likes
+  }
+  async function getUserLikes() {
+    if (!loggedInUser) {
+      //console.log('getUserLikes 0')
+      return 0
+    }
+    //console.log('getUserLikes', loggedInUser)
+    let request, url
+    if (!loggedInUser) {
+      //console.log('getUserLikes no user!')
+      return
+    }
+    url = process.env.REACT_APP_SERVER_URL + `/api/likes/${props.file}/${loggedInUser.id}`
+    request = {
+      method: 'get',
+      credentials: 'include'
+    }
+
+    let raw = await fetch(url, request)
+    let r = await raw.json()
+    //console.log('getUserLikes', r.likes)
+    return r.likes
+  }
 
   function handleLike(e) {
     e.preventDefault()
     if (!loggedIn) return
-    console.log('handleLike', props.file)
-    let request, url
 
-    //     url = process.env.REACT_APP_SERVER_URL + `/api/comments/${props.file}`
-    //     request = {
-    //       method: 'get',
-    //       credentials: 'include'
-    //     }
+    let request, url, method
 
-    //    let raw = await fetch(url, request)
+    if (userLikes) {
+      method = 'delete'
+    } else {
+      method = 'post'
+    }
 
-    //    return await raw.json()
+    url = process.env.REACT_APP_SERVER_URL + `/api/likes/${props.file}`
+    request = {
+      method,
+      credentials: 'include'
+    }
+    fetch(url, request).then(async raw => {
+      let r = await raw.json()
+
+      if (1 !== r.affectedRows) {
+        //console.log('like error', r)
+      }
+    })
   }
   function handleComment(e) {
     e.preventDefault()
@@ -86,7 +154,7 @@ function MP3(props) {
   function handleRemoveAddComment(e) {
     e.preventDefault()
     if (!loggedIn) return
-    if ('' == e.target.value) {
+    if ('' === e.target.value) {
       setAddComment(false)
       setCommentAdded(true)
     }
@@ -98,8 +166,8 @@ function MP3(props) {
 
   if (comments && comments.length) {
     commentItems = comments.map((comment, i) => {
-      let user = _.get(users, comment.userid)
-      let nickname = user?.name
+      let commentUser = _.get(users, comment.userid)
+      let nickname = commentUser?.name
 
       return (
         <CardDeck
@@ -149,7 +217,7 @@ function MP3(props) {
             }}
           >
             <font id="addNickName" size="1">
-              {user.nickname}
+              {loggedInUser.nickname}
             </font>
             <Form onSubmit={e => handleAddComment(e)} onBlur={handleRemoveAddComment}>
               <Form.Group size="lg" controlId="comment">
@@ -170,6 +238,13 @@ function MP3(props) {
       </audio>
     )
   }
+  let likePng
+  if (userLikes) {
+    likePng = 'liked.png'
+  } else {
+    likePng = 'like.png'
+  }
+  //console.log('likePng', props.file, likePng)
   return (
     <CardDeck
       style={{
@@ -182,8 +257,8 @@ function MP3(props) {
     >
       <Card style={{maxWidth: '4rem'}}>{props.name}</Card>
       <figure className="likes">
-        <img className="likes" src="http://localhost:7002/likes.png" />
-        <figcapture className="likes">3</figcapture>
+        <img className="likes" src="http://localhost:7002/likes.png" alt="" />
+        <figcaption className="likes">{likes ? likes : ''}</figcaption>
       </figure>
       <Card style={{maxWidth: '20rem'}}>
         <div>
@@ -193,8 +268,9 @@ function MP3(props) {
             style={{
               maxWidth: '10rem'
             }}
-            src="http://localhost:7002/liked.png"
+            src={`http://localhost:7002/${likePng}`}
             onClick={handleLike}
+            alt=""
           />
           &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
           <img
@@ -202,6 +278,7 @@ function MP3(props) {
             style={{maxWidth: '8rem'}}
             src="http://localhost:7002/comment.png"
             onClick={handleComment}
+            alt=""
           />
         </div>
       </Card>
