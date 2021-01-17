@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react'
 import Form from 'react-bootstrap/Form'
 import _ from 'lodash'
 import {Button, Card, CardDeck} from 'react-bootstrap'
+import moment from 'moment'
 require('dotenv').config() //({path: '../.env'})
 
 function MP3(props) {
@@ -46,7 +47,7 @@ function MP3(props) {
       setUserLikes(data)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [loggedInUser])
 
   async function getComments() {
     let request, url
@@ -94,7 +95,7 @@ function MP3(props) {
 
     let raw = await fetch(url, request)
     let r = await raw.json()
-    //console.log('getUserLikes', r.likes)
+    console.log('getUserLikes', r.likes)
     return r.likes
   }
 
@@ -116,11 +117,13 @@ function MP3(props) {
       credentials: 'include'
     }
     fetch(url, request).then(async raw => {
-      let r = await raw.json()
-
-      if (1 !== r.affectedRows) {
-        //console.log('like error', r)
-      }
+      await raw.json()
+      getLikes().then(data => {
+        setLikes(data)
+      })
+      getUserLikes().then(data => {
+        setUserLikes(data)
+      })
     })
   }
   function handleComment(e) {
@@ -168,28 +171,14 @@ function MP3(props) {
     commentItems = comments.map((comment, i) => {
       let commentUser = _.get(users, comment.userid)
       let nickname = commentUser?.name
+      let commentDate = moment(commentUser?.dt).format('YYYY-MM-DD')
 
       return (
-        <CardDeck
-          key={i}
-          style={{
-            borderStyle: 'none none none none',
-            borderWidth: '1px',
-            borderColor: '#f0f0f0',
-            paddingBottom: '5px',
-            paddingTop: '5px'
-          }}
-        >
-          {/*          <Card style={{'maxWidth': '8rem'}}>{nickname}</Card> */}
-          <Card
-            style={{
-              borderStyle: 'solid solid solid solid',
-              borderColor: '#f7f7f7',
-              borderWidth: '5px',
-              backgroundColor: '#f7f7f7'
-            }}
-          >
-            <font size="1">{nickname}</font>
+        <CardDeck className="comment-items" key={i}>
+          <Card className="comment-item">
+            <font size="1">
+              {nickname}&nbsp;&nbsp;&nbsp;&nbsp; {commentDate}
+            </font>
             {comment.data}
           </Card>
         </CardDeck>
@@ -197,31 +186,16 @@ function MP3(props) {
     })
     if (addComment) {
       commentItems.push(
-        <CardDeck
-          key={commentItems.length}
-          style={{
-            borderStyle: 'none none none none',
-            borderWidth: '1px',
-            borderColor: '#f0f0f0',
-            paddingBottom: '5px',
-            paddingTop: '5px'
-          }}
-        >
-          <Card
-            id="addComment"
-            style={{
-              borderStyle: 'solid solid solid solid',
-              borderColor: '#f7f7f7',
-              borderWidth: '5px',
-              backgroundColor: '#f7f7f7'
-            }}
-          >
-            <font id="addNickName" size="1">
-              {loggedInUser.nickname}
-            </font>
+        <CardDeck key={commentItems.length} className="add-comment">
+          <Card id="addComment" className="add-comment">
             <Form onSubmit={e => handleAddComment(e)} onBlur={handleRemoveAddComment}>
               <Form.Group size="lg" controlId="comment">
-                <Form.Control autoFocus type="comment" onChange={e => setNewComment(e.target.value)} />
+                <Form.Control
+                  className="addcomment"
+                  autoFocus
+                  type="comment"
+                  onChange={e => setNewComment(e.target.value)}
+                />
               </Form.Group>
             </Form>
           </Card>
@@ -244,45 +218,23 @@ function MP3(props) {
   } else {
     likePng = 'like.png'
   }
-  //console.log('likePng', props.file, likePng)
+
   return (
-    <CardDeck
-      style={{
-        borderStyle: 'solid solid solid solid',
-        borderWidth: '1px',
-        borderColor: '#f0f0f0',
-        paddingBottom: '10px',
-        paddingTop: '10px'
-      }}
-    >
-      <Card style={{maxWidth: '4rem'}}>{props.name}</Card>
+    <CardDeck className="mp3">
+      <Card className="name">{props.name}</Card>
       <figure className="likes">
-        <img className="likes" src="http://localhost:7002/likes.png" alt="" />
+        <img className="likes" src={`${mp3url}/likes.png`} alt="" />
         <figcaption className="likes">{likes ? likes : ''}</figcaption>
       </figure>
-      <Card style={{maxWidth: '20rem'}}>
+      <Card className="player">
         <div>
           {audio}
-          <img
-            className="like"
-            style={{
-              maxWidth: '10rem'
-            }}
-            src={`http://localhost:7002/${likePng}`}
-            onClick={handleLike}
-            alt=""
-          />
+          <img className="like" src={`${mp3url}/${likePng}`} onClick={handleLike} alt="" />
           &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-          <img
-            className="comment"
-            style={{maxWidth: '8rem'}}
-            src="http://localhost:7002/comment.png"
-            onClick={handleComment}
-            alt=""
-          />
+          <img className="comment" src={`${mp3url}/comment.png`} onClick={handleComment} alt="" />
         </div>
       </Card>
-      <Card style={{textAlign: 'left'}}>
+      <Card className="comments">
         <>{commentItems}</>
       </Card>
     </CardDeck>
