@@ -50,28 +50,41 @@ async function postComments(req, res) {
 
   if (!mp3) {
     debugE('mp3 required')
-    return res
-      .status(400)
-      .send('mp3 required')
-      .end()
+    return res.status(400).send('mp3 required').end()
   }
   if (!userid) {
     debugE('userid required')
-    return res
-      .status(400)
-      .send('userid required')
-      .end()
+    return res.status(400).send('userid required').end()
   }
   if (!comments) {
     debugE('comments required')
-    return res
-      .status(400)
-      .send('comments required')
-      .end()
+    return res.status(400).send('comments required').end()
   }
   let result
   try {
     result = await db.comments.create(userid, mp3, comments)
+  } catch (e) {
+    debugE(e)
+    return res.sendStatus(400)
+  }
+
+  res.sendStatus(201)
+}
+async function updateComments(req, res) {
+  let id = parseInt(req?.params?.id)
+  let comments = req?.body?.comments
+
+  if (!id && 0 !== id) {
+    debugE('id required')
+    return res.status(400).send('id required').end()
+  }
+  if (!comments) {
+    debugE('comments required')
+    return res.status(400).send('comments required').end()
+  }
+  let result
+  try {
+    result = await db.comments.update(id, comments)
   } catch (e) {
     debugE(e)
     return res.sendStatus(400)
@@ -125,18 +138,12 @@ async function postKeyVals(req, res) {
 
   if (!id) {
     debugE('id required')
-    return res
-      .status(400)
-      .send('id required')
-      .end()
+    return res.status(400).send('id required').end()
   }
 
   if (!data) {
     debugE('data required')
-    return res
-      .status(400)
-      .send('data required')
-      .end()
+    return res.status(400).send('data required').end()
   }
 
   let result
@@ -208,10 +215,7 @@ async function getUsers(req, res) {
 }
 function returnError(code, desc, res) {
   debugE(code, desc)
-  res
-    .status(code)
-    .send(desc)
-    .end()
+  res.status(code).send(desc).end()
 }
 async function postUsers(req, res) {
   let user = {}
@@ -235,10 +239,7 @@ async function postUsers(req, res) {
     return res.sendStatus(400)
   }
 
-  res
-    .status(201)
-    .send(result)
-    .end()
+  res.status(201).send(result).end()
 }
 async function putUsers(req, res) {
   let user = {}
@@ -365,20 +366,12 @@ async function requestLoginLink(req, res, next) {
   //
 
   await new Promise(resolve => {
-    expressValidator
-      .body('email', 'valid email required')
-      .not()
-      .isEmpty()
-      .isEmail()
-      .normalizeEmail()(req, res, () => resolve())
+    expressValidator.body('email', 'valid email required').not().isEmpty().isEmail().normalizeEmail()(req, res, () =>
+      resolve()
+    )
   })
   await new Promise(resolve => {
-    expressValidator
-      .body('name', 'name required')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()(req, res, () => resolve())
+    expressValidator.body('name', 'name required').not().isEmpty().trim().escape()(req, res, () => resolve())
   })
 
   const errors = expressValidator.validationResult(req)
@@ -539,6 +532,7 @@ function init(app) {
   app.get('/api/healthz', health)
   app.get('/api/comments/:mp3', getComments)
   app.post('/api/comments/:mp3', isLoggedIn, postComments)
+  app.put('/api/comments/:id', isLoggedIn, updateComments)
   app.delete('/api/comments/:id', isLoggedIn, delComments)
 
   app.get('/api/keyvals/:id', getKeyVals)

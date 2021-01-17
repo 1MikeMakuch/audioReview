@@ -35,10 +35,7 @@ async function login() {
   for (var u = 0; u < 2; u++) {
     // request login link
     debug('/api/requestLoginLink', JSON.stringify(users[u]))
-    let r = await request
-      .post('/api/requestLoginLink')
-      .send(users[u])
-      .redirects(0)
+    let r = await request.post('/api/requestLoginLink').send(users[u]).redirects(0)
     expect(r.status).to.equal(200)
 
     // For dev only the token is included in the body for ENV=development only, so we can grab it and use it for testing.
@@ -63,30 +60,27 @@ async function login() {
   debug('logins', JSON.stringify({users, auths}))
 }
 
-before('init db', async function() {
+before('init db', async function () {
   //
   await db.init()
   await login()
 })
-after('cleanup', async function() {
+after('cleanup', async function () {
   await db.users.del({email: user0.email})
   await db.users.del({email: user1.email})
 })
-describe('api', async function() {
-  it('isLoggedIn', async function() {
+describe('api', async function () {
+  it('isLoggedIn', async function () {
     let r = await request.get('/api/isLoggedIn').set(auth0)
     expect(r.status).to.equal(200)
     expect(r.body.id).to.equal(user0.id)
   })
-  it('comments', async function() {
+  it('comments', async function () {
     let mp3 = 'test=' + utils.generateRandomString(10)
     let comments = 'this is a test'
 
     // create a comment
-    let r = await request
-      .post(`/api/comments/${mp3}`)
-      .send({comments})
-      .set(auth0)
+    let r = await request.post(`/api/comments/${mp3}`).send({comments}).set(auth0)
 
     expect(r.status).to.equal(201)
     debug('comment created', r.status)
@@ -97,6 +91,20 @@ describe('api', async function() {
     expect(r.body.length).to.be.gt(0)
     expect(r.body.find(comment => comments === comment.data).data).to.equal(comments)
     let ids = r.body.map(comment => comment.id)
+
+    let id = ids[0]
+    // update
+    comments = 'this is a test 2'
+    r = await request.put(`/api/comments/${id}`).set(auth0).send({comments})
+    expect(r.status).to.equal(201)
+    debug('comment updated', r.status)
+
+    // read it check it's updated
+    r = await request.get(`/api/comments/${mp3}`).set(auth0)
+    expect(r.status).to.equal(200)
+    expect(r.body.length).to.be.gt(0)
+    expect(r.body.find(comment => comments === comment.data).data).to.equal(comments)
+    debug('updated checks out')
 
     // doesn't exist
     r = await request.get(`/api/comments/${mp3}+'xyzzy123321'`).set(auth0)
@@ -116,10 +124,7 @@ describe('api', async function() {
     expect(r.status).to.equal(400)
 
     // create errors
-    r = await request
-      .post(`/api/comments//xxx`)
-      .send({comments})
-      .set(auth0)
+    r = await request.post(`/api/comments//xxx`).send({comments}).set(auth0)
     expect(r.status).to.equal(404)
 
     r = await request
@@ -130,16 +135,12 @@ describe('api', async function() {
     expect(r.status).to.equal(404)
   })
 
-  it('keyvals', async function() {
+  it('keyvals', async function () {
     let key = 'test000000'
     let val = 'xyzzy111'
 
     // create
-    let r = await request
-      .post(`/api/keyvals/${key}`)
-      .set('Content-type', 'text/plain')
-      .set(auth0)
-      .send(val)
+    let r = await request.post(`/api/keyvals/${key}`).set('Content-type', 'text/plain').set(auth0).send(val)
     debug('created', key, val)
     expect(r.status).to.equal(201)
 
@@ -153,11 +154,7 @@ describe('api', async function() {
     val = {
       xyzzy: 'plugh!'
     }
-    r = await request
-      .post(`/api/keyvals/${key}`)
-      .set('Content-type', 'application/json')
-      .set(auth0)
-      .send(val)
+    r = await request.post(`/api/keyvals/${key}`).set('Content-type', 'application/json').set(auth0).send(val)
     expect(r.status).to.equal(201)
     debug('set to object', key, val)
 
@@ -170,11 +167,7 @@ describe('api', async function() {
     // Cant send numbers through chai
     val = 123
     try {
-      r = await request
-        .post(`/api/keyvals/${key}`)
-        .set('Content-type', 'text/plain')
-        .set(auth0)
-        .send(val)
+      r = await request.post(`/api/keyvals/${key}`).set('Content-type', 'text/plain').set(auth0).send(val)
       debug('set to number', key, val)
       expect(r.status).to.equal(201)
     } catch (e) {
@@ -197,17 +190,14 @@ describe('api', async function() {
     debug('check its deleted')
   })
 
-  it('users', async function() {
+  it('users', async function () {
     let user2 = {
       name: 'Joe User',
       email: 'joe@xyzzy.xyz'
     }
 
     // create user
-    let r = await request
-      .post('/api/users')
-      .send(user2)
-      .set(auth0)
+    let r = await request.post('/api/users').send(user2).set(auth0)
     expect(r.status).to.equal(201)
     expect(r.body.name).to.equal(user2.name)
     expect(r.body.emai).to.equal(user2.emai)
@@ -215,10 +205,7 @@ describe('api', async function() {
     debug('user2 created id', user2.id)
 
     // can't create duplicate
-    r = await request
-      .post('/api/users')
-      .send(user2)
-      .set(auth0)
+    r = await request.post('/api/users').send(user2).set(auth0)
     expect(r.status).to.equal(400)
     debug('user didnt create', JSON.stringify(r.body))
 
@@ -236,10 +223,7 @@ describe('api', async function() {
 
     // update by id
     user2.name = 'Sally User'
-    r = await request
-      .put(`/api/users/${user2.id}`)
-      .send({name: user2.name})
-      .set(auth0)
+    r = await request.put(`/api/users/${user2.id}`).send({name: user2.name}).set(auth0)
     expect(r.status).to.equal(201)
 
     // read/verify the update by id
@@ -251,10 +235,7 @@ describe('api', async function() {
     // create 2nd user
     let user3 = Object.assign({}, user2)
     user3.email = 'joe1@example.com'
-    r = await request
-      .post('/api/users')
-      .set(auth0)
-      .send(user3)
+    r = await request.post('/api/users').set(auth0).send(user3)
 
     expect(r.status).to.equal(201)
     expect(r.body.name).to.equal(user3.name)
@@ -291,7 +272,7 @@ describe('api', async function() {
     debug('check its deleted')
   })
 
-  it('likes', async function() {
+  it('likes', async function () {
     let userid0 = 999
     let userid1 = 998
     let mp30 = utils.generateRandomString(10)

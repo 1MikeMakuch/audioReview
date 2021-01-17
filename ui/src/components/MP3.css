@@ -21,7 +21,25 @@ border-style: solid;
     border-style: solid solid solid solid;
     border-color: #f7f7f7;
     border-width: 5px;
-    background-color: #f7f7f7
+    background-color: #f7f7f7;
+    margin-right: 0px;
+}
+.card.ud-ellipsis {
+    max-width: 2rem;
+    background-color: #f7f7f7;
+    margin-left: 0px;
+
+}
+.ud-button {
+    border-style: none none none none ;
+    border-width: 2px;
+    border-color: #999999;
+
+    background-color: #f7f7f7;
+}
+.ud-button:hover {
+    /* found this to be a decent hover, same as focus'd */
+    outline: 5px auto -webkit-focus-ring-color;
 }
 .card-deck.comment-items {
     border-style: none none none none;
@@ -113,6 +131,7 @@ img.like {
 img.comment {
     max-width: 8rem;
 }
+
 img.comments {
     text-align: left;
 }

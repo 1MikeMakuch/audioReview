@@ -2,12 +2,12 @@ import './MP3.css'
 import React, {useEffect, useState} from 'react'
 import Form from 'react-bootstrap/Form'
 import _ from 'lodash'
-import {Button, Card, CardDeck} from 'react-bootstrap'
+import {Button, Card, CardDeck, Popover, OverlayTrigger} from 'react-bootstrap'
 import moment from 'moment'
+
 require('dotenv').config() //({path: '../.env'})
 
 function MP3(props) {
-  //  console.log('MP3 0', props.user)
   const [comments, setComments] = useState(null)
   const [likes, setLikes] = useState(null)
   const [userLikes, setUserLikes] = useState(null)
@@ -16,15 +16,15 @@ function MP3(props) {
   const [commentAdded, setCommentAdded] = useState(false)
   const [newComment, setNewComment] = useState()
   const [loggedInUser, setLoggedInUser] = useState(null)
+  const [editingCommentId, setEditingCommentId] = useState(-1)
+  const [editedComment, setEditedComment] = useState(null)
   const loggedIn = props.loggedIn
   const users = props.users
+
   //  const user = props.user
 
   if (!loggedInUser && props && props.user && props.user.id) {
-    //console.log('setLoggedInuser')
     setLoggedInUser(props.user)
-  } else {
-    //console.log('!setLoggedInuser')
   }
 
   if (!mp3Test) setMp3Test(props.file)
@@ -78,13 +78,11 @@ function MP3(props) {
   }
   async function getUserLikes() {
     if (!loggedInUser) {
-      //console.log('getUserLikes 0')
       return 0
     }
-    //console.log('getUserLikes', loggedInUser)
+
     let request, url
     if (!loggedInUser) {
-      //console.log('getUserLikes no user!')
       return
     }
     url = process.env.REACT_APP_SERVER_URL + `/api/likes/${props.file}/${loggedInUser.id}`
@@ -95,7 +93,7 @@ function MP3(props) {
 
     let raw = await fetch(url, request)
     let r = await raw.json()
-    console.log('getUserLikes', r.likes)
+
     return r.likes
   }
 
@@ -131,6 +129,29 @@ function MP3(props) {
     if (!loggedIn) return
     setAddComment(true)
   }
+  function handleUpdate(e, idx) {
+    // update
+    e.preventDefault()
+    console.log('handleUpdate', idx)
+    setEditingCommentId(idx)
+  }
+  function handleDelete(e, idx) {
+    // delete
+    e.preventDefault()
+    let id = comments[idx].id
+
+    let r = window.confirm('Confirm delete comment?')
+    if (true != r) return
+
+    let url = process.env.REACT_APP_SERVER_URL + `/api/comments/${id}`
+    let request = {
+      method: 'delete',
+      credentials: 'include'
+    }
+    fetch(url, request).then(async raw => {
+      setCommentAdded(true)
+    })
+  }
 
   function handleAddComment(e) {
     e.preventDefault()
@@ -162,6 +183,26 @@ function MP3(props) {
       setCommentAdded(true)
     }
   }
+  function handleEditComment(e, i) {
+    e.preventDefault()
+    let comments = editedComment
+    let url = process.env.REACT_APP_SERVER_URL + `/api/comments/${i}`
+    let request = {
+      method: 'put',
+      body: JSON.stringify({comments}),
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }
+
+    fetch(url, request).then(response => {
+      setEditingCommentId(-1)
+      setAddComment(false)
+      setCommentAdded(true)
+    })
+  }
 
   let audio = <Button disabled={true}>Play</Button>
 
@@ -173,16 +214,59 @@ function MP3(props) {
       let nickname = commentUser?.name
       let commentDate = moment(commentUser?.dt).format('YYYY-MM-DD')
 
-      return (
-        <CardDeck className="comment-items" key={i}>
-          <Card className="comment-item">
-            <font size="1">
-              {nickname}&nbsp;&nbsp;&nbsp;&nbsp; {commentDate}
-            </font>
-            {comment.data}
-          </Card>
-        </CardDeck>
-      )
+      if (editingCommentId === i) {
+        let sqlId = comment.id
+        console.log('edit', i)
+
+        return (
+          <CardDeck key={i} className="add-comment">
+            <Card id="addComment" className="add-comment">
+              <Form onSubmit={e => handleEditComment(e, sqlId)}>
+                <Form.Group size="lg" controlId="comment">
+                  <Form.Control
+                    className="addcomment"
+                    autoFocus
+                    type="comment"
+                    defaultValue={comment.data}
+                    onChange={e => setEditedComment(e.target.value)}
+                  />
+                </Form.Group>
+              </Form>
+            </Card>
+          </CardDeck>
+        )
+      } else {
+        const popover = (
+          <Popover id="popover-basic">
+            <Popover.Content>
+              <ul>
+                <li onClick={e => handleUpdate(e, i)}>Edit</li>
+                <li onClick={e => handleDelete(e, i)}>Delete</li>
+              </ul>
+            </Popover.Content>
+          </Popover>
+        )
+
+        return (
+          <CardDeck className="comment-items" key={i}>
+            <Card className="comment-item">
+              <font size="1">
+                {nickname}&nbsp;&nbsp;&nbsp;&nbsp; {commentDate}
+              </font>
+              {comment.data}
+            </Card>
+            <Card className="ud-ellipsis">
+              <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
+                {injectedProps => (
+                  <button className="ud-button" {...injectedProps}>
+                    ...
+                  </button>
+                )}
+              </OverlayTrigger>
+            </Card>
+          </CardDeck>
+        )
+      }
     })
     if (addComment) {
       commentItems.push(

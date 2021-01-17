@@ -11,12 +11,12 @@ chai.use(require('chai-http'))
 
 const expect = chai.expect
 
-before('init db', async function() {
+before('init db', async function () {
   await db.init()
 })
 
-describe('db', async function() {
-  it('comments', async function() {
+describe('db', async function () {
+  it('comments', async function () {
     let userid = 999999999
     let mp3 = 'test000'
     let comments = 'this is a test'
@@ -27,6 +27,20 @@ describe('db', async function() {
     expect(r.warningStatus).to.equal(0)
     let id = r.insertId
 
+    r = await db.comments.get(mp3)
+    expect(r.length).to.equal(1)
+    expect(r[0].userid).to.equal(userid)
+    expect(r[0].mp3).to.equal(mp3)
+    expect(r[0].data).to.equal(comments)
+    id = r[0].id
+
+    // update
+    comments = 'this is a test 2'
+    r = await db.comments.update(id, comments)
+    expect(r.affectedRows).to.equal(1)
+    expect(r.warningStatus).to.equal(0)
+
+    // check updated
     r = await db.comments.get(mp3)
     expect(r.length).to.equal(1)
     expect(r[0].userid).to.equal(userid)
@@ -73,7 +87,7 @@ describe('db', async function() {
     }
     expect(r).to.be.null
   })
-  it('keyvals', async function() {
+  it('keyvals', async function () {
     const id0 = 'test00000000000'
     let data = 'xyzzy'
 
@@ -135,7 +149,7 @@ describe('db', async function() {
     expect(r).to.be.undefined
   })
 
-  it('likes', async function() {
+  it('likes', async function () {
     let userid = 999
     let mp3 = utils.generateRandomString(10)
 
@@ -184,7 +198,7 @@ describe('db', async function() {
     expect(r.likes).to.equal(0)
   })
 
-  it('users', async function() {
+  it('users', async function () {
     let user = {
       name: 'Joe User',
       email: 'joe@testuserexample.xyz'

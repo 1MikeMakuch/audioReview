@@ -27,6 +27,13 @@ async function create(userid, mp3, comments) {
 
   return await mysql(sql, values)
 }
+async function update(id, data) {
+  if (!id && 0 !== id) throw new Error('id required')
+  if (!data) throw new Error('comments required')
+  let sql = 'update comments set data = ? where id = ?'
+  let values = [data, id]
+  return await mysql(sql, values)
+}
 async function del(id) {
   if (!id) {
     throw new Error('id required')
@@ -41,4 +48,4 @@ async function init(config) {
   mysql = config.execute
 }
 
-module.exports = {init, get, create, del}
+module.exports = {init, get, create, update, del}
