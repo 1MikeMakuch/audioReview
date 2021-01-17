@@ -20,7 +20,8 @@ create table comments (
     data varchar(512) not null,
     primary key(id),
     key mp3 (mp3),
-    dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    dt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    udt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 drop table if exists users;
 create table users (

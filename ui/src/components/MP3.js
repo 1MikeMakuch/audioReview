@@ -130,18 +130,18 @@ function MP3(props) {
     setAddComment(true)
   }
   function handleUpdate(e, idx) {
-    // update
     e.preventDefault()
+    if (!loggedIn) return
     console.log('handleUpdate', idx)
     setEditingCommentId(idx)
   }
   function handleDelete(e, idx) {
-    // delete
     e.preventDefault()
+    if (!loggedIn) return
     let id = comments[idx].id
 
     let r = window.confirm('Confirm delete comment?')
-    if (true != r) return
+    if (true !== r) return
 
     let url = process.env.REACT_APP_SERVER_URL + `/api/comments/${id}`
     let request = {
@@ -212,7 +212,7 @@ function MP3(props) {
     commentItems = comments.map((comment, i) => {
       let commentUser = _.get(users, comment.userid)
       let nickname = commentUser?.name
-      let commentDate = moment(commentUser?.dt).format('YYYY-MM-DD')
+      let commentDate = moment(commentUser?.udt).format('YYYY-MM-DD')
 
       if (editingCommentId === i) {
         let sqlId = comment.id
@@ -247,6 +247,19 @@ function MP3(props) {
           </Popover>
         )
 
+        let overlay
+        if (loggedIn) {
+          overlay = (
+            <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
+              {injectedProps => (
+                <button className="ud-button" {...injectedProps}>
+                  ...
+                </button>
+              )}
+            </OverlayTrigger>
+          )
+        }
+
         return (
           <CardDeck className="comment-items" key={i}>
             <Card className="comment-item">
@@ -255,15 +268,7 @@ function MP3(props) {
               </font>
               {comment.data}
             </Card>
-            <Card className="ud-ellipsis">
-              <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
-                {injectedProps => (
-                  <button className="ud-button" {...injectedProps}>
-                    ...
-                  </button>
-                )}
-              </OverlayTrigger>
-            </Card>
+            <Card className="ud-ellipsis">{overlay}</Card>
           </CardDeck>
         )
       }
