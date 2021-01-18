@@ -51,7 +51,7 @@ async function doit() {
 
   cookie.originalMaxAge = 1000 * 300 // 5 mins
 
-  debug("before process.env.ENVIRONMENT === 'development'")
+  debug('server init', JSON.stringify({cookie}))
   if (process.env.ENVIRONMENT === 'development') {
     let sessionOptions = {
       secret: process.env.SESSION_SECRET,
