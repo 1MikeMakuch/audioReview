@@ -206,7 +206,7 @@ function MP3(props) {
 
   let audio = <Button disabled={true}>Play</Button>
 
-  let commentItems
+  let commentItems = []
 
   if (comments && comments.length) {
     commentItems = comments.map((comment, i) => {
@@ -273,24 +273,24 @@ function MP3(props) {
         )
       }
     })
-    if (addComment) {
-      commentItems.push(
-        <CardDeck key={commentItems.length} className="add-comment">
-          <Card id="addComment" className="add-comment">
-            <Form onSubmit={e => handleAddComment(e)} onBlur={handleRemoveAddComment}>
-              <Form.Group size="lg" controlId="comment">
-                <Form.Control
-                  className="addcomment"
-                  autoFocus
-                  type="comment"
-                  onChange={e => setNewComment(e.target.value)}
-                />
-              </Form.Group>
-            </Form>
-          </Card>
-        </CardDeck>
-      )
-    }
+  }
+  if (addComment) {
+    commentItems.push(
+      <CardDeck key={commentItems.length} className="add-comment">
+        <Card id="addComment" className="add-comment">
+          <Form onSubmit={e => handleAddComment(e)} onBlur={handleRemoveAddComment}>
+            <Form.Group size="lg" controlId="comment">
+              <Form.Control
+                className="addcomment"
+                autoFocus
+                type="comment"
+                onChange={e => setNewComment(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Card>
+      </CardDeck>
+    )
   }
 
   if (loggedIn) {

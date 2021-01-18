@@ -51,7 +51,9 @@ async function doit() {
 
   cookie.originalMaxAge = 1000 * 300 // 5 mins
 
-  debug('server init', JSON.stringify({cookie}))
+  let uiurl = process.env.URL || '*'
+
+  debug('server init', JSON.stringify({cookie, uiurl}))
   if (process.env.ENVIRONMENT === 'development') {
     let sessionOptions = {
       secret: process.env.SESSION_SECRET,
@@ -70,7 +72,7 @@ async function doit() {
 
     // Temporary, will be removed when build.js is published
     app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*')
+      res.header('Access-Control-Allow-Origin', uiurl)
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
       res.header('Access-Control-Allow-Headers', ['Content-Type', 'Authorization'])
       res.header('Access-Control-Allow-Credentials', true)
