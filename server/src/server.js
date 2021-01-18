@@ -70,24 +70,36 @@ async function doit() {
 
     // Temporary, will be removed when build.js is published
     app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
+      res.header('Access-Control-Allow-Origin', '*')
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
       res.header('Access-Control-Allow-Headers', ['Content-Type', 'Authorization'])
       res.header('Access-Control-Allow-Credentials', true)
       next()
     })
   } else {
-    //   app
-    //     .use
-    //     session({
-    //       secret: process.env.SESSION_SECRET,
-    //       resave: false,
-    //       saveUninitialized: true,
-    //       store: new (require('express-mysql-session')(session))(bookshelf.knex.client.config.connection),
-    //       unset: 'destroy',
-    //       cookie
-    //     })
-    //    ()
+    let sessionOptions = {
+      secret: process.env.SESSION_SECRET,
+      // needed to destroy session upon logout, https://medium.com/@caroline.e.okun/read-this-if-youre-using-passport-for-authentication-188d00968f1b
+      resave: false,
+      saveUninitialized: true,
+      store: 'mysql options...',
+      unset: 'destroy',
+      cookie
+    }
+    debug('app.use(session:', JSON.stringify(sessionOptions))
+    sessionOptions.store = new MySQLStore({}, mysql)
+    app.use(session(sessionOptions))
+    app.use(passport.initialize())
+    app.use(passport.session())
+
+    // Temporary, will be removed when build.js is published
+    app.use((req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*')
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+      res.header('Access-Control-Allow-Headers', ['Content-Type', 'Authorization'])
+      res.header('Access-Control-Allow-Credentials', true)
+      next()
+    })
   }
   app.use(
     morgan(
