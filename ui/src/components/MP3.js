@@ -212,7 +212,7 @@ function MP3(props) {
     commentItems = comments.map((comment, i) => {
       let commentUser = _.get(users, comment.userid)
       let nickname = commentUser?.name
-      let commentDate = moment(commentUser?.udt).format('YYYY-MM-DD')
+      let commentDate = moment(comment?.udt).format('YYYY-MM-DD')
 
       if (editingCommentId === i) {
         let sqlId = comment.id

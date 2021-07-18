@@ -5,6 +5,7 @@ import './App.css'
 import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom'
 import Login from './Login'
 import Tape from './Tape'
+import _ from 'lodash'
 
 function TopNavbar(props) {
   const [users, setUsers] = useState({})
@@ -27,11 +28,13 @@ function TopNavbar(props) {
 
   //  if (0 === Object.keys(users).length) getUsers()
 
+  const tape = _.get(window.location.href.split(/\//), '3')
+
   return (
     <Router>
       <div>
         <Navbar expand="md" className="customNav" bg="primary" variant="dark" sticky="top">
-          <header className="App-header">Dollahite tapes </header>
+          <header className="App-header">Vics tapes </header>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto container-fluid">
@@ -66,7 +69,7 @@ function TopNavbar(props) {
                 Tape 10
               </Nav.Link>
               <Nav.Link as={Link} to="/login" className="ml-auto">
-                {nickname ? nickname : 'Login'}
+                {nickname ? nickname : <div style={{color: '#ffffff', bold: true}}>Login</div>}
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -84,6 +87,27 @@ function TopNavbar(props) {
           </Route>
           <Route path="/tape3">
             <Tape tape="3" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape4">
+            <Tape tape="4" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape5">
+            <Tape tape="5" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape6">
+            <Tape tape="6" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape7">
+            <Tape tape="7" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape8">
+            <Tape tape="8" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape9">
+            <Tape tape="9" loggedIn={loggedIn} users={users} user={user} />
+          </Route>
+          <Route path="/tape10">
+            <Tape tape="10" loggedIn={loggedIn} users={users} user={user} />
           </Route>
           <Route path="/">
             <div>Technical difficulties...</div>

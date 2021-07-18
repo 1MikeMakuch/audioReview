@@ -14,7 +14,11 @@ function Tape(props) {
   if (null !== tape && 0 <= tape && tape <= tapes.length) {
     tapeSection = (
       <Card>
-        {!loggedIn && <div>Please log in to listen</div>}
+        {!loggedIn && (
+          <div style={{textAlign: 'right', fontSize: '30px'}}>
+            Please log in to listen/comment &nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+        )}
         <Card.Body>
           {tapes[tape].map((mp3, i) => (
             <MP3
