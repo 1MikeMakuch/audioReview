@@ -110,7 +110,9 @@ function TopNavbar(props) {
             <Tape tape="10" loggedIn={loggedIn} users={users} user={user} />
           </Route>
           <Route path="/">
-            <div>Technical difficulties...</div>
+            <div style={{textAlign: 'right', fontSize: '30px'}}>
+              Please log in to listen/comment &nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
           </Route>
         </Switch>
       </div>

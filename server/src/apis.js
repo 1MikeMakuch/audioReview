@@ -417,7 +417,7 @@ function sendAuthenticationEmail(user, token) {
   console.log('server curl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/api/login?token=' + token)
 
   console.log('ui curl -v  -H@/Users/mkm/curl/appjson  http://localhost:3000/login?token=' + token)
-  utils.sendMail(mail)
+  if ('production' == process.env.ENVIRONMENT) utils.sendMail(mail)
 }
 function magicLink(req, res, next) {
   const {incorrectToken, token} = req.query

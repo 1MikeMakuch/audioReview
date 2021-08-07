@@ -108,7 +108,7 @@ function Login(props) {
   }
 
   function loggedOut() {
-    return <div>You're logged out</div>
+    return <Redirect to="/tape1" />
   }
 
   function showLoginResponse() {
@@ -119,7 +119,7 @@ function Login(props) {
     let checkEmail = pageState[1]
 
     let url
-    if (checkEmail) {
+    if (checkEmail && 'development' == process.env.REACT_APP_ENVIRONMENT) {
       url = process.env.REACT_APP_UI_URL + '/login?token=' + checkEmail
     } else {
       url = 'n/a'
