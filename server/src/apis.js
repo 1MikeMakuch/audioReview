@@ -411,13 +411,13 @@ function sendAuthenticationEmail(user, token) {
     from: '1mikemakuch.server@gmail.com',
     replyTo: '1mikemakuch@gmail.com',
     to: user.email,
-    subject: 'Dollahite Tapes Login Link',
+    subject: 'Vics Tapes Login Link',
     text
   }
-  console.log('\nserver\ncurl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/api/login?token=' + token + '\n')
+  console.log('server curl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/api/login?token=' + token)
 
-  console.log('\nui\ncurl -v  -H@/Users/mkm/curl/appjson  http://localhost:3000/login?token=' + token + '\n')
-  //  utils.sendMail(mail)
+  console.log('ui curl -v  -H@/Users/mkm/curl/appjson  http://localhost:3000/login?token=' + token)
+  utils.sendMail(mail)
 }
 function magicLink(req, res, next) {
   const {incorrectToken, token} = req.query
