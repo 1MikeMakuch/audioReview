@@ -122,11 +122,11 @@ function Login(props) {
     if (checkEmail && 'development' == process.env.REACT_APP_ENVIRONMENT) {
       url = process.env.REACT_APP_UI_URL + '/login?token=' + checkEmail
     } else {
-      url = 'n/a'
+      url = ''
     }
     return (
       <div>
-        <div>Check your email</div>
+        <div style={{textAlign: 'center', fontSize: '30px'}}>Check your email for login link</div>
         <a href={url}>{url}</a>
       </div>
     )

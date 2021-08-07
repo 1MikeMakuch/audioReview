@@ -392,14 +392,13 @@ async function requestLoginLink(req, res, next) {
   generateLoginJWT(user).then(loginToken => {
     sendAuthenticationEmail(user, loginToken)
     let url = process.env.UI_URL + '/login?checkEmail=1'
-    let body
+    let body = {dev: {'x-dollahite-tapes-app': ''}}
     if ('development' === process.env.ENVIRONMENT) {
       body = {dev: {'x-dollahite-tapes-app': loginToken}}
     }
 
     res.status(200)
-    if (body) res.send(body)
-    res.end()
+    res.send(body).end()
   })
 }
 

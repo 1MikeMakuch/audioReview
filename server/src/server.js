@@ -96,7 +96,7 @@ async function doit() {
 
     // Temporary, will be removed when build.js is published
     app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*')
+      res.header('Access-Control-Allow-Origin', uiurl)
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
       res.header('Access-Control-Allow-Headers', ['Content-Type', 'Authorization'])
       res.header('Access-Control-Allow-Credentials', true)
