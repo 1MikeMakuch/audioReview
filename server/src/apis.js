@@ -413,10 +413,18 @@ function sendAuthenticationEmail(user, token) {
     subject: 'Vics Tapes Login Link',
     text
   }
-  console.log('server curl -v  -H@/Users/mkm/curl/appjson  http://localhost:9092/api/login?token=' + token)
 
-  console.log('ui curl -v  -H@/Users/mkm/curl/appjson  http://localhost:3000/login?token=' + token)
-  if ('production' == process.env.ENVIRONMENT) utils.sendMail(mail)
+  if ('production' == process.env.ENVIRONMENT) {
+    utils.sendMail(mail)
+    let mail2 = {
+      from: '1mikemakuch.server@gmail.com',
+      replyTo: '1mikemakuch@gmail.com',
+      to: '1mikemakuch@gmail.com',
+      subject: 'Vics tapes: ' + user.email + ' logged in!',
+      text: user.email + ' logged in!'
+    }
+    utils.sendMail(mail2)
+  }
 }
 function magicLink(req, res, next) {
   const {incorrectToken, token} = req.query
