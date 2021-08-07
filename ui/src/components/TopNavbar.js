@@ -111,7 +111,11 @@ function TopNavbar(props) {
           </Route>
           <Route path="/">
             <div style={{textAlign: 'right', fontSize: '30px'}}>
-              Please log in to listen/comment &nbsp;&nbsp;&nbsp;&nbsp;
+              {loggedIn ? (
+                <div style={{textAlign: 'center', fontSize: '30px'}}>Please select a Tape&nbsp;&nbsp;&nbsp;&nbsp;</div>
+              ) : (
+                <div>Please log in to listen/comment &nbsp;&nbsp;&nbsp;&nbsp;</div>
+              )}
             </div>
           </Route>
         </Switch>
