@@ -1,9 +1,9 @@
-drop database if exists dt ;
-CREATE DATABASE IF NOT EXISTS dt DEFAULT CHARSET=utf8;
+drop database if exists vt ;
+CREATE DATABASE IF NOT EXISTS vt DEFAULT CHARSET=utf8;
 
-GRANT ALL ON dt.* to 'dt'@'localhost' identified by 'dt';
-GRANT ALL ON dt.* to 'dt'@'%' identified by 'dt';
+CREATE USER 'vt'@'%' IDENTIFIED BY 'vt';
+GRANT ALL PRIVILEGES ON vt.* to 'vt'@'%' WITH GRANT OPTION;
 
-USE dt;
+USE vt;
 
--- SOURCE schema.sql;
+SOURCE schema.sql;

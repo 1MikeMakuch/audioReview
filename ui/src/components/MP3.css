@@ -22,12 +22,12 @@ border-style: solid;
     border-color: #f7f7f7;
     border-width: 5px;
     background-color: #f7f7f7;
-    margin-right: 0px;
+    margin-right: 0;
 }
 .card.ud-ellipsis {
     max-width: 2rem;
     background-color: #f7f7f7;
-    margin-left: 0px;
+    margin-left: 0;
 
 }
 .ud-button {
@@ -115,7 +115,7 @@ border-style: solid;
 figure.likes {
           margin: 20px;
           max-height: 3rem;
-          margin: 0
+          margin: 0;
 }
 figcaption.likes {
             max-width: 5rem;
@@ -144,5 +144,5 @@ img.likes {
 
 .form-control.addcomment {
         border-color: #81bdff;
-        box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(0, 0, 255, 0.5);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(0, 0, 255, 0.5);
  }
