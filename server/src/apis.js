@@ -405,7 +405,7 @@ async function requestLoginLink(req, res, next) {
 
 function sendAuthenticationEmail(user, token) {
   let text = 'Just click on this link and you will be logged in, no password required.\n\n'
-  text += `https://${process.env.LOGIN_URL}?token=${token}\n\n`
+  text += `${process.env.LOGIN_URL}?token=${token}\n\n`
   text += 'Cheers\nMike'
   let mail = {
     from: '1mikemakuch.server@gmail.com',
