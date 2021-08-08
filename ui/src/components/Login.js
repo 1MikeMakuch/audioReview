@@ -9,8 +9,8 @@ var firstSubmit = true
 var token
 
 function Login(props) {
-  const [email, setEmail] = useState('1mikemakuch@gmail.com')
-  const [name, setName] = useState('Mike M')
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [pageState, setPageState] = useState([false, false])
   const setLoggedIn = props.setLoggedIn
   const loggedIn = props.loggedIn
