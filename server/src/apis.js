@@ -383,11 +383,14 @@ async function requestLoginLink(req, res, next) {
 
   const email = _.get(req.body, 'email')
   const name = _.get(req.body, 'name')
+  const ip = _.get(req, 'ip')
 
   let user = await db.users.get({email})
   if (!user) {
     user = await db.users.create({email, name})
   }
+  let result = await db.ips.set(email, ip)
+  debug('db.ips.set result', JSON.stringify(result))
 
   generateLoginJWT(user).then(loginToken => {
     sendAuthenticationEmail(user, loginToken)
@@ -449,11 +452,16 @@ function authenticate(req, res, next) {
       session: true
       //      passReqToCallback: true // doesn't seem to be needed
     },
-    (err, user, info) => {
+    async (err, user, info) => {
       if (!user) {
-        debug('no user in token')
+        debugE('no user in token')
         return res.sendStatus(401)
         //return res.redirect(process.env.UI_URL + '/login')
+      }
+      let previousIP = await db.ips.get(user.email)
+      if (previousIP.ip !== req.ip) {
+        debugE('\n\nauthenticate IP mismatch', JSON.stringify({previousIP, ip: req.ip, user}), '\n\n')
+        return res.sendStatus(401)
       }
       req.login(user, {session: true}, e => {
         if (e) next(e)

@@ -147,7 +147,7 @@ function Login(props) {
     return (
       <div>
         <div style={{textAlign: 'center', fontSize: '30px'}}>
-          The login link is expired or invalid, please login again.
+          The login link is expired or invalid, please login again. Also you must use the same device.
         </div>
       </div>
     )

@@ -9,6 +9,7 @@ const comments = require('./comments')
 const keyvals = require('./keyvals')
 const users = require('./users')
 const likes = require('./likes')
+const ips = require('./ips')
 
 var mysql
 
@@ -48,7 +49,8 @@ async function init() {
   keyvals.init({execute})
   users.init({execute})
   likes.init({execute})
+  ips.init({execute})
   return c
 }
 
-module.exports = {init, comments, keyvals, users, likes}
+module.exports = {init, comments, keyvals, users, likes, ips}
