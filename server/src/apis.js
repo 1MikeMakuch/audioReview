@@ -23,7 +23,7 @@ const jwtOptions = {
   issuer: 'localhost',
   audience: 'localhost',
   algorithm: jwtAlgorithm,
-  expiresIn: '50m'
+  expiresIn: 15 * 60 // 15 mins
 }
 
 async function getComments(req, res) {

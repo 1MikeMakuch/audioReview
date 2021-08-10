@@ -32,7 +32,7 @@ function Login(props) {
 
   async function loginToken(token) {
     if (loggedIn) {
-      //console.log('loggedIn', token)
+      return <div></div>
     } else {
       let request, response
       let url = process.env.REACT_APP_SERVER_URL + '/api/login?token=' + token
@@ -40,16 +40,29 @@ function Login(props) {
         method: 'get',
         credentials: 'include'
       }
+      try {
+        response = await fetch(url, request)
 
-      response = await fetch(url, request)
-      response = await response.json()
-
-      setPageState(['loginResponse', response])
-      if (response && response.id && response.email) {
-        setUser(response)
-        setLoggedIn(true)
+        if (200 !== response?.status) {
+          setPageState(['invalid', 'invalid'])
+          setLoggedIn(false)
+          return <div>not logged in</div>
+        }
+        response = await response.json()
+      } catch (e) {
+        console.log('login failed', e)
+      }
+      if (200 === response?.status) {
+        setPageState(['loginResponse', response])
+        if (response && response.id && response.email) {
+          setUser(response)
+          setLoggedIn(true)
+        }
+      } else {
+        return <div></div>
       }
     }
+    return <div></div>
   }
 
   function validateForm() {
@@ -99,10 +112,16 @@ function Login(props) {
 
   if (pageState && token && pageState[0] === 'token') {
     if (loggedIn) {
-      return <div>You are now logged in</div>
+      //return <div>You are now logged in</div>
+
+      return (
+        <div style={{textAlign: 'center', fontSize: '30px'}}>
+          You are logged in, please select a Tape&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+      )
     } else {
       loginToken(token)
-      return <div>Now logging you in</div>
+      return <div></div>
     }
   } else if (pageState && pageState[0] === 'loginResponse') {
     return showLoginResponse()
@@ -110,6 +129,8 @@ function Login(props) {
     return checkYourEmail()
   } else if (pageState && pageState[0] === 'loggedOut') {
     return loggedOut()
+  } else if (pageState && pageState[0] === 'invalid') {
+    return invalidLink()
   } else {
     return mainLogin()
   }
@@ -122,11 +143,21 @@ function Login(props) {
     return <Redirect to="/tape1" />
   }
 
+  function invalidLink() {
+    return (
+      <div>
+        <div style={{textAlign: 'center', fontSize: '30px'}}>
+          The login link is expired or invalid, please login again.
+        </div>
+      </div>
+    )
+  }
+
   function checkYourEmail() {
     let checkEmail = pageState[1]
 
     let url
-    if (checkEmail && 'development' == process.env.REACT_APP_ENVIRONMENT) {
+    if (checkEmail && 'development' === process.env.REACT_APP_ENVIRONMENT) {
       url = process.env.REACT_APP_UI_URL + '/login?token=' + checkEmail
     } else {
       url = ''
