@@ -1,5 +1,7 @@
 
 set -x
+. /home/mkm/.bashrc
+
 cd /home/mkm/virtuals/vicstapes/nodeapp
 
 git checkout .
