@@ -1,6 +1,5 @@
 
 set -x
-. /home/mkm/.bashrc
 
 nvm use 14
 
