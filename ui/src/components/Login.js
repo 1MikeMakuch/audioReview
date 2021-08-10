@@ -16,6 +16,13 @@ function Login(props) {
   const loggedIn = props.loggedIn
   const setUser = props.setUser
 
+  if (props?.user?.name && !name) {
+    setName(props.user.name)
+  }
+  if (props?.user?.email && !email) {
+    setEmail(props.user.email)
+  }
+
   const qs = queryString.parse(window.location.search)
   if (qs && qs.token) {
     token = qs.token
