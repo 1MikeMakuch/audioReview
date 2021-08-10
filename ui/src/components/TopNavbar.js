@@ -74,11 +74,7 @@ function TopNavbar(props) {
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-        <div>
-          Family and friends: I've gone through most all of the recordings quickly and tagged with who I think it is.
-          But I might be wrong especialy Ester vs Vicki or who ever I don't know! Please don't hesitate to make comments
-          and let us know who it is! Thanks, Michael!
-        </div>
+
         <Switch>
           <Route path="/login">
             <Login setLoggedIn={setLoggedIn} loggedIn={loggedIn} setUser={setUser} user={user} />
