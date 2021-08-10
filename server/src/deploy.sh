@@ -2,6 +2,8 @@
 set -x
 . /home/mkm/.bashrc
 
+nvm use 14
+
 cd /home/mkm/virtuals/vicstapes/nodeapp
 
 git checkout .
