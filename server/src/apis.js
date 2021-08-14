@@ -366,9 +366,7 @@ async function requestLoginLink(req, res, next) {
   //
 
   await new Promise(resolve => {
-    expressValidator.body('email', 'valid email required').not().isEmpty().isEmail().normalizeEmail()(req, res, () =>
-      resolve()
-    )
+    expressValidator.body('email', 'valid email required').not().isEmpty().isEmail()(req, res, () => resolve())
   })
   await new Promise(resolve => {
     expressValidator.body('name', 'name required').not().isEmpty().trim().escape()(req, res, () => resolve())

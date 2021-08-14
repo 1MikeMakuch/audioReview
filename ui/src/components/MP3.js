@@ -213,10 +213,11 @@ function MP3(props) {
       let commentUser = _.get(users, comment.userid)
       let nickname = commentUser?.name
       let commentDate = moment(comment?.udt).format('YYYY-MM-DD')
+      let commentAuthor = commentUser?.id === loggedInUser?.id
 
       if (editingCommentId === i) {
         let sqlId = comment.id
-        console.log('edit', i)
+        //console.log('edit', i)
 
         return (
           <CardDeck key={i} className="add-comment">
@@ -248,7 +249,7 @@ function MP3(props) {
         )
 
         let overlay
-        if (loggedIn) {
+        if (loggedIn && commentAuthor) {
           overlay = (
             <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
               {injectedProps => (
