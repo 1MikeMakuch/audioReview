@@ -10,6 +10,6 @@ It appears they were recorded in the 1950s and 1960s.
 
 I sourced a company to make digital recordings from the tapes, resulting in 234 mp3 files totaling around 30 hours of audio recordings. So the task was to make
 it easy to listen to the mp3s and make notes, who is on there and what are they doing, etc. etc - this to make it easier for others to enjoy listening to our late
-family ancestors going about the business of life and entertainment. 
+family ancestors going about the business of life and entertaining themselves.
 
 So this web app is what I came up with. It works pretty well. I've made no attempt to generalize it for use by others, but feel free to fork and create a PR.
