@@ -4,7 +4,7 @@ This is a simple web app built in Node/React/MySql. It's an audio review app. It
 keep notes and likes on each mp3 file. The play functions allow for easy skipping forward through recordings which was important for us.
 
 An uncle of mine passed away years ago and we discovered a bag of very old audio tapes stashed in the attic.
-These are the reel to reel audio tapes - old tech. It appears that when this technology was new my late uncle was entertaining
+These are the reel to reel audio tapes - old tech. It appears that when this technology was new my late uncle was having fun
 by making recordings of various activities; family and friends gathering, pretending to be a sports announcer, interviewing "celebrity" guests etc.
 It appears they were recorded in the 1950s and 1960s.
 
