@@ -12,4 +12,4 @@ I sourced a company to make digital recordings from the tapes, resulting in 234 
 it easy to listen to the mp3s and make notes, who is on there and what are they doing, etc. etc - this to make it easier for others to enjoy listening to our late
 family ancestors going about the business of life and entertainment. 
 
-So this web app is what I came up with. It works pretty well. 
+So this web app is what I came up with. It works pretty well. I've made no attempt to generalize it for use by others, but feel free to fork and create a PR.
